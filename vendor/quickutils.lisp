@@ -2,7 +2,7 @@
 ;;;; See http://quickutil.org for details.
 
 ;;;; To regenerate:
-;;;; (qtlc:save-utils-as "quickutils.lisp" :utilities '(:CURRY :ENSURE-BOOLEAN :ENSURE-LIST :ONCE-ONLY :RCURRY :WITH-GENSYMS) :ensure-package T :package "MAGITEK.QUICKUTILS")
+;;;; (qtlc:save-utils-as "quickutils.lisp" :utilities '(:CURRY :ENSURE-BOOLEAN :ENSURE-GETHASH :ENSURE-LIST :N-GRAMS :ONCE-ONLY :RCURRY :READ-FILE-INTO-STRING :WITH-GENSYMS) :ensure-package T :package "MAGITEK.QUICKUTILS")
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (unless (find-package "MAGITEK.QUICKUTILS")
@@ -14,9 +14,12 @@
 
 (when (boundp '*utilities*)
   (setf *utilities* (union *utilities* '(:MAKE-GENSYM-LIST :ENSURE-FUNCTION
-                                         :CURRY :ENSURE-BOOLEAN :ENSURE-LIST
-                                         :ONCE-ONLY :RCURRY :STRING-DESIGNATOR
-                                         :WITH-GENSYMS))))
+                                         :CURRY :ENSURE-BOOLEAN :ENSURE-GETHASH
+                                         :ENSURE-LIST :TAKE :N-GRAMS :ONCE-ONLY
+                                         :RCURRY :WITH-OPEN-FILE*
+                                         :WITH-INPUT-FROM-FILE
+                                         :READ-FILE-INTO-STRING
+                                         :STRING-DESIGNATOR :WITH-GENSYMS))))
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun make-gensym-list (length &optional (x "G"))
     "Returns a list of `length` gensyms, each generated as if with a call to `make-gensym`,
@@ -66,11 +69,42 @@ it is called with to `function`."
     (and x t))
   
 
+  (defmacro ensure-gethash (key hash-table &optional default)
+    "Like `gethash`, but if `key` is not found in the `hash-table` saves the `default`
+under key before returning it. Secondary return value is true if key was
+already in the table."
+    `(multiple-value-bind (value ok) (gethash ,key ,hash-table)
+       (if ok
+           (values value ok)
+           (values (setf (gethash ,key ,hash-table) ,default) nil))))
+  
+
   (defun ensure-list (list)
     "If `list` is a list, it is returned. Otherwise returns the list designated by `list`."
     (if (listp list)
         list
         (list list)))
+  
+
+  (defun take (n sequence)
+    "Take the first `n` elements from `sequence`."
+    (subseq sequence 0 n))
+  
+
+  (defun n-grams (n sequence)
+    "Find all `n`-grams of the sequence `sequence`."
+    (assert (and (plusp n)
+                 (<= n (length sequence))))
+    
+    (etypecase sequence
+      ;; Lists
+      (list (loop :repeat (1+ (- (length sequence) n))
+                  :for seq :on sequence
+                  :collect (take n seq)))
+      
+      ;; General sequences
+      (sequence (loop :for i :to (- (length sequence) n)
+                      :collect (subseq sequence i (+ i n))))))
   
 
   (defmacro once-only (specs &body forms)
@@ -122,6 +156,58 @@ with and `arguments` to `function`."
         (multiple-value-call fn (values-list more) (values-list arguments)))))
   
 
+  (defmacro with-open-file* ((stream filespec &key direction element-type
+                                                   if-exists if-does-not-exist external-format)
+                             &body body)
+    "Just like `with-open-file`, but `nil` values in the keyword arguments mean to use
+the default value specified for `open`."
+    (once-only (direction element-type if-exists if-does-not-exist external-format)
+      `(with-open-stream
+           (,stream (apply #'open ,filespec
+                           (append
+                            (when ,direction
+                              (list :direction ,direction))
+                            (when ,element-type
+                              (list :element-type ,element-type))
+                            (when ,if-exists
+                              (list :if-exists ,if-exists))
+                            (when ,if-does-not-exist
+                              (list :if-does-not-exist ,if-does-not-exist))
+                            (when ,external-format
+                              (list :external-format ,external-format)))))
+         ,@body)))
+  
+
+  (defmacro with-input-from-file ((stream-name file-name &rest args
+                                                         &key (direction nil direction-p)
+                                                         &allow-other-keys)
+                                  &body body)
+    "Evaluate `body` with `stream-name` to an input stream on the file
+`file-name`. `args` is sent as is to the call to `open` except `external-format`,
+which is only sent to `with-open-file` when it's not `nil`."
+    (declare (ignore direction))
+    (when direction-p
+      (error "Can't specifiy :DIRECTION for WITH-INPUT-FROM-FILE."))
+    `(with-open-file* (,stream-name ,file-name :direction :input ,@args)
+       ,@body))
+  
+
+  (defun read-file-into-string (pathname &key (buffer-size 4096) external-format)
+    "Return the contents of the file denoted by `pathname` as a fresh string.
+
+The `external-format` parameter will be passed directly to `with-open-file`
+unless it's `nil`, which means the system default."
+    (with-input-from-file
+        (file-stream pathname :external-format external-format)
+      (let ((*print-pretty* nil))
+        (with-output-to-string (datum)
+          (let ((buffer (make-array buffer-size :element-type 'character)))
+            (loop
+              :for bytes-read = (read-sequence buffer file-stream)
+              :do (write-sequence buffer datum :start 0 :end bytes-read)
+              :while (= bytes-read buffer-size)))))))
+  
+
   (deftype string-designator ()
     "A string designator type. A string designator is either a string, a symbol,
 or a character."
@@ -166,7 +252,7 @@ unique symbol the named variable will be bound to."
     `(with-gensyms ,names ,@forms))
   
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '(curry ensure-boolean ensure-list once-only rcurry with-gensyms
-            with-unique-names)))
+  (export '(curry ensure-boolean ensure-gethash ensure-list n-grams once-only
+            rcurry read-file-into-string with-gensyms with-unique-names)))
 
 ;;;; END OF quickutils.lisp ;;;;

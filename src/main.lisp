@@ -22,6 +22,7 @@
           (tt-tweet name tweet)
           (sleep 5.0))))))
 
+
 (defun main ()
   (db-connect)
   (db-initialize)

@@ -12,6 +12,7 @@
                :iterate
                :chancery
                :named-readtables
+               :split-sequence
                :cl-arrows)
 
   :serial t
@@ -22,6 +23,7 @@
                (:module "src" :serial t
                 :components ((:file "database")
                              (:file "twitter")
+                             (:file "markov")
                              (:module "robots"
                               :components ((:file "git-commands")))
                              (:file "main")))))

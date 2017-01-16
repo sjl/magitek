@@ -24,6 +24,17 @@
     :db-tweeted-since-p))
 
 
+(defpackage :magitek.markov
+  (:use
+    :cl
+    :losh
+    :iterate
+    :cl-arrows
+    :magitek.quickutils)
+  (:export
+    ))
+
+
 (defpackage :magitek.robots.git-commands
   (:use
     :cl
@@ -33,6 +44,7 @@
     :chancery
     :magitek.quickutils)
   (:export :random-string))
+
 
 
 (defpackage :magitek
