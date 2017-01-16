@@ -1,10 +1,9 @@
-(in-package :magitek)
+(in-package :magitek.twitter)
 
-(defparameter *api-key* "...")
-(defparameter *api-secret* "...")
+(setf *api-key* "...")
+(setf *api-secret* "...")
 
-(defparameter *credentials*
+(setf *credentials*
   '(
-    (auth-plist-goes-here use dump-auth-plist to get it)
-    ; ...
+    (auth-plist-goes-here use (authorize) to get it)
     ))

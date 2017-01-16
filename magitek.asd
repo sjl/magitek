@@ -10,6 +10,8 @@
                :chirp
                :sqlite
                :iterate
+               :chancery
+               :named-readtables
                :cl-arrows)
 
   :serial t
@@ -18,6 +20,8 @@
                              (:file "quickutils")))
                (:file "package")
                (:module "src" :serial t
-                :components ((:file "creds")
-                             (:file "auth")
+                :components ((:file "auth")
+                             (:file "database")
+                             (:module "robots"
+                              :components ((:file "git-commands")))
                              (:file "main")))))
