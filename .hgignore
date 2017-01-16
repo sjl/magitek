@@ -3,3 +3,4 @@ syntax: glob
 scratch.lisp
 *.png
 docs/build
+creds.lisp
