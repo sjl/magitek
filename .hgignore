@@ -5,3 +5,4 @@ scratch.lisp
 docs/build
 creds.lisp
 database.sqlite
+build/magitek
