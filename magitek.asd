@@ -18,4 +18,6 @@
                              (:file "quickutils")))
                (:file "package")
                (:module "src" :serial t
-                :components ((:file "main")))))
+                :components ((:file "creds")
+                             (:file "auth")
+                             (:file "main")))))
