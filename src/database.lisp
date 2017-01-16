@@ -6,7 +6,7 @@
   (setf *database* (connect path))
   (values))
 
-(defun initialize-database ()
+(defun db-initialize ()
   (execute-non-query *database*
     "CREATE TABLE IF NOT EXISTS tweets(
         id INTEGER PRIMARY KEY,

@@ -19,6 +19,7 @@
     :magitek.quickutils)
   (:export
     :db-connect
+    :db-initialize
     :db-insert-tweet
     :db-tweeted-since-p))
 

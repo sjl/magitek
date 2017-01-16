@@ -11,6 +11,7 @@
 
 
 (defun run-bot (name generator &key (hours 12))
+  (format t "Running ~S~%" name)
   (when (not (db-tweeted-since-p name (hours-to-minutes hours)))
     (let ((tweet (generate-tweet generator)))
       (if (null tweet)
@@ -23,7 +24,7 @@
 
 (defun main ()
   (db-connect)
+  (db-initialize)
   (tt-load-credentials)
   (run-bot :git-commands #'magitek.robots.git-commands:random-string
-           :hours 12)
-  t)
+           :hours 12))

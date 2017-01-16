@@ -20,8 +20,8 @@
                              (:file "quickutils")))
                (:file "package")
                (:module "src" :serial t
-                :components ((:file "auth")
-                             (:file "database")
+                :components ((:file "database")
+                             (:file "twitter")
                              (:module "robots"
                               :components ((:file "git-commands")))
                              (:file "main")))))
