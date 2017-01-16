@@ -6,3 +6,4 @@ docs/build
 creds.lisp
 database.sqlite
 build/magitek
+data
