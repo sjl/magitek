@@ -12,5 +12,6 @@ exec ros -Q -- $0 "$@"
 
 (defun main (&rest argv)
   (declare (ignore argv))
+  (setf *random-state* (make-random-state t))
   (magitek:main)
   t)
