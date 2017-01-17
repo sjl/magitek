@@ -125,5 +125,3 @@
 
 
 ;;;; Scratch ------------------------------------------------------------------
-(defparameter *text* (read-file-into-string "data/metamorphosis.txt"))
-(defparameter *m* (build-markov-generator *text* 3))

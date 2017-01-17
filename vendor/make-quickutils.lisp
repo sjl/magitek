@@ -13,6 +13,7 @@
                :rcurry
                :read-file-into-string
                :with-gensyms
+               :write-string-into-file
 
                )
   :package "MAGITEK.QUICKUTILS")

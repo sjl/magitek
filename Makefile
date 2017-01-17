@@ -21,5 +21,5 @@ update-deps:
 	cp build/antipodes /opt/antipodes/antipodes
 
 deploy: build/magitek
-	rsync --exclude=build/magitek --exclude=.hg --exclude=database.sqlite -avz . silt:/home/sjl/magitek
+	rsync --exclude=build/magitek --exclude=.hg --exclude=database.sqlite --exclude=corpora -avz . silt:/home/sjl/magitek
 	ssh silt make -C /home/sjl/magitek build/magitek

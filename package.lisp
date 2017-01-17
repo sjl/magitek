@@ -32,7 +32,8 @@
     :cl-arrows
     :magitek.quickutils)
   (:export
-    ))
+    :build-markov-generator
+    :generate-sentence))
 
 
 (defpackage :magitek.robots.git-commands
@@ -45,6 +46,14 @@
     :magitek.quickutils)
   (:export :random-string))
 
+(defpackage :magitek.robots.hacker-booze
+  (:use
+    :cl
+    :iterate
+    :cl-arrows
+    :losh
+    :magitek.quickutils)
+  (:export :random-string))
 
 
 (defpackage :magitek

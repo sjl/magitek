@@ -6,14 +6,25 @@
   :license "MIT/X11"
   :version "1.0.0"
 
-  :depends-on (:losh
-               :chirp
-               :sqlite
-               :iterate
+  :depends-on (
+
                :chancery
+               :chirp
+               :cl-arrows
+               :clss
+               :drakma
+               :flexi-streams
+               :html-entities
+               :iterate
+               :jonathan
+               :losh
                :named-readtables
+               :plump
+               :sanitize
                :split-sequence
-               :cl-arrows)
+               :sqlite
+
+               )
 
   :serial t
   :components ((:module "vendor" :serial t
@@ -25,5 +36,6 @@
                              (:file "twitter")
                              (:file "markov")
                              (:module "robots"
-                              :components ((:file "git-commands")))
+                              :components ((:file "git-commands")
+                                           (:file "hacker-booze")))
                              (:file "main")))))

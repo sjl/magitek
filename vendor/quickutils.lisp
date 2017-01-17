@@ -2,7 +2,7 @@
 ;;;; See http://quickutil.org for details.
 
 ;;;; To regenerate:
-;;;; (qtlc:save-utils-as "quickutils.lisp" :utilities '(:CURRY :ENSURE-BOOLEAN :ENSURE-GETHASH :ENSURE-LIST :N-GRAMS :ONCE-ONLY :RCURRY :READ-FILE-INTO-STRING :WITH-GENSYMS) :ensure-package T :package "MAGITEK.QUICKUTILS")
+;;;; (qtlc:save-utils-as "quickutils.lisp" :utilities '(:CURRY :ENSURE-BOOLEAN :ENSURE-GETHASH :ENSURE-LIST :N-GRAMS :ONCE-ONLY :RCURRY :READ-FILE-INTO-STRING :WITH-GENSYMS :WRITE-STRING-INTO-FILE) :ensure-package T :package "MAGITEK.QUICKUTILS")
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (unless (find-package "MAGITEK.QUICKUTILS")
@@ -19,7 +19,9 @@
                                          :RCURRY :WITH-OPEN-FILE*
                                          :WITH-INPUT-FROM-FILE
                                          :READ-FILE-INTO-STRING
-                                         :STRING-DESIGNATOR :WITH-GENSYMS))))
+                                         :STRING-DESIGNATOR :WITH-GENSYMS
+                                         :WITH-OUTPUT-TO-FILE
+                                         :WRITE-STRING-INTO-FILE))))
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun make-gensym-list (length &optional (x "G"))
     "Returns a list of `length` gensyms, each generated as if with a call to `make-gensym`,
@@ -251,8 +253,36 @@ The string-designator is used as the argument to `gensym` when constructing the
 unique symbol the named variable will be bound to."
     `(with-gensyms ,names ,@forms))
   
+
+  (defmacro with-output-to-file ((stream-name file-name &rest args
+                                                        &key (direction nil direction-p)
+                                                        &allow-other-keys)
+                                 &body body)
+    "Evaluate `body` with `stream-name` to an output stream on the file
+`file-name`. `args` is sent as is to the call to `open` except `external-format`,
+which is only sent to `with-open-file` when it's not `nil`."
+    (declare (ignore direction))
+    (when direction-p
+      (error "Can't specifiy :DIRECTION for WITH-OUTPUT-TO-FILE."))
+    `(with-open-file* (,stream-name ,file-name :direction :output ,@args)
+       ,@body))
+  
+
+  (defun write-string-into-file (string pathname &key (if-exists :error)
+                                                      if-does-not-exist
+                                                      external-format)
+    "Write `string` to `pathname`.
+
+The `external-format` parameter will be passed directly to `with-open-file`
+unless it's `nil`, which means the system default."
+    (with-output-to-file (file-stream pathname :if-exists if-exists
+                                               :if-does-not-exist if-does-not-exist
+                                               :external-format external-format)
+      (write-sequence string file-stream)))
+  
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (export '(curry ensure-boolean ensure-gethash ensure-list n-grams once-only
-            rcurry read-file-into-string with-gensyms with-unique-names)))
+            rcurry read-file-into-string with-gensyms with-unique-names
+            write-string-into-file)))
 
 ;;;; END OF quickutils.lisp ;;;;
