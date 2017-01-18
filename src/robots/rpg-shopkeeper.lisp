@@ -199,7 +199,7 @@
 
 
 (defun vanilla-armor-description (vanilla-armor)
-  (destructuring-bind (material piece) vanilla-weapon
+  (destructuring-bind (material piece) vanilla-armor
     (format nil "~A ~A" (material-name material) piece)))
 
 
@@ -289,10 +289,13 @@
 ;;;; Flavor -------------------------------------------------------------------
 (defparameter *monster* nil)
 
+(define-string scene
+  ("images of" [monster monster-plural]))
+
 (define-string sales-pitch
   "Only used once!"
   "Brand new!"
-  ("I bought it from" [(eval (monster-adjective (monster))) a] role :. ".")
+  ("I bought it from" [monster monster-adjective a] role)
   "This is gonna go fast!")
 
 
@@ -303,7 +306,7 @@
 
 (define-string offer
   ("FOR SALE:" #\newline :.
-   [item cap] #\newline :.
+   [item cap] #\newline #\newline :.
    sales-pitch))
 
 
