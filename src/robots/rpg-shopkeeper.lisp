@@ -1,21 +1,9 @@
 (in-package :magitek.robots.rpg-shopkeeper)
 (named-readtables:in-readtable :chancery)
 
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  ;;; please just end my life
-  (defmacro ea (&body body)
-    `(eval-when (:compile-toplevel :load-toplevel :execute)
-       ,@body)))
-
-
 ;;;; General ------------------------------------------------------------------
 (define-rule (bonus :distribution (:zipf :exponent 1.8))
   1 2 3 4 5)
-
-
-(ea (defun str (symbol)
-      (string-downcase (symbol-name symbol))))
 
 
 ;;;; Materials ----------------------------------------------------------------
@@ -30,56 +18,55 @@
     (princ (material-name o) s)))
 
 (defmacro define-material (name multiplier)
-  `(defparameter ,(symb '* name '*)
-     (make-material ,(string-downcase (substitute #\space #\- (symbol-name name)))
-                    ,multiplier)))
+  `(defparameter ,(symb '* (string-upcase (substitute #\- #\space name)) '*)
+     (make-material ,name ,multiplier)))
 
 
-(define-material iron 1.0)
-(define-material steel 1.5)
-(define-material silver 2.0)
-(define-material meteoric-iron 4.0)
-(define-material mithril 10.0)
-(define-material adamantine 11.0)
+(define-material "iron" 1.0)
+(define-material "steel" 1.5)
+(define-material "silver" 2.0)
+(define-material "meteoric iron" 4.0)
+(define-material "mithril" 10.0)
+(define-material "adamantine" 11.0)
 
 
-(define-material cloth 1.0)
-(define-material leather 1.5)
-(define-material silk 2.0)
-(define-material spider-silk 6.0)
+(define-material "cloth" 1.0)
+(define-material "leather" 1.5)
+(define-material "silk" 2.0)
+(define-material "spider silk" 6.0)
 
 
-(define-material pine 1.0) ; http://www.wood-database.com/wood-articles/bow-woods/
-(define-material poplar 1.2)
-(define-material walnut 1.3)
-(define-material maple 2.0)
-(define-material oak 3.0)
-(define-material yew 5.0)
-(define-material rosewood 10.0)
+(define-material "pine" 1.0) ; http://www.wood-database.com/wood-articles/bow-woods/
+(define-material "poplar" 1.2)
+(define-material "walnut" 1.3)
+(define-material "maple" 2.0)
+(define-material "oak" 3.0)
+(define-material "yew" 5.0)
+(define-material "rosewood" 10.0)
 
 
 (define-rule (metal :distribution :zipf)
-  *iron*
-  *steel*
-  *silver*
-  *meteoric-iron*
-  *mithril*
-  *adamantine*)
+  !*iron*
+  !*steel*
+  !*silver*
+  !*meteoric-iron*
+  !*mithril*
+  !*adamantine*)
 
 (define-rule (textile :distribution :weighted)
-  (1.00 *cloth*)
-  (1.00 *leather*)
-  (0.80 *silk*)
-  (0.01 *spider-silk*))
+  (1.00 !*cloth*)
+  (1.00 !*leather*)
+  (0.80 !*silk*)
+  (0.01 !*spider-silk*))
 
 (define-rule (wood :distribution (:zipf :exponent 0.8))
-  *pine*
-  *poplar*
-  *walnut*
-  *maple*
-  *oak*
-  *yew*
-  *rosewood*)
+  !*pine*
+  !*poplar*
+  !*walnut*
+  !*maple*
+  !*oak*
+  !*yew*
+  !*rosewood*)
 
 
 ;;;; Monsters -----------------------------------------------------------------
@@ -98,39 +85,39 @@
     (princ (monster-singular o) s)))
 
 (defmacro define-monster (singular multiplier plural adjective)
-  `(defparameter ,(symb '* singular '*)
+  `(defparameter ,(symb '* (string-upcase singular) '*)
      (make-monster
-       ,(str singular)
+       ,singular
        ,multiplier
-       ,(str plural)
-       ,(str adjective))))
+       ,plural
+       ,adjective)))
 
 
-(define-monster goblin   1.00 goblins   goblin)
-(define-monster kobold   1.00 kobolds   kobold)
-(define-monster elf      1.00 elves     elven)
-(define-monster dwarf    1.00 dwarves   dwarven)
-(define-monster halfling 1.00 halflings halfling)
-(define-monster gnome    1.00 gnomes    gnomish)
-(define-monster gnoll    1.10 gnolls    gnollish)
-(define-monster ogre     1.20 ogres     ogre)
-(define-monster troll    1.60 trolls    troll)
-(define-monster vampire  5.00 vampires  vampire)
-(define-monster dragon   9.00 dragons   dragon)
+(define-monster "goblin"   1.00 "goblins"   "goblin")
+(define-monster "kobold"   1.00 "kobolds"   "kobold")
+(define-monster "elf"      1.00 "elves"     "elven")
+(define-monster "dwarf"    1.00 "dwarves"   "dwarven")
+(define-monster "halfling" 1.00 "halflings" "halfling")
+(define-monster "gnome"    1.00 "gnomes"    "gnomish")
+(define-monster "gnoll"    1.10 "gnolls"    "gnollish")
+(define-monster "ogre"     1.20 "ogres"     "ogre")
+(define-monster "troll"    1.60 "trolls"    "troll")
+(define-monster "vampire"  5.00 "vampires"  "vampire")
+(define-monster "dragon"   9.00 "dragons"   "dragon")
 
 
 (define-rule (monster :distribution :weighted)
-  (1.00 *goblin*)
-  (1.00 *kobold*)
-  (1.00 *elf*)
-  (1.00 *dwarf*)
-  (1.00 *halfling*)
-  (1.00 *gnome*)
-  (1.00 *ogre*)
-  (1.00 *troll*)
-  (1.00 *gnoll*)
-  (0.10 *vampire*)
-  (0.01 *dragon*))
+  (1.00 !*goblin*)
+  (1.00 !*kobold*)
+  (1.00 !*elf*)
+  (1.00 !*dwarf*)
+  (1.00 !*halfling*)
+  (1.00 !*gnome*)
+  (1.00 !*ogre*)
+  (1.00 !*troll*)
+  (1.00 !*gnoll*)
+  (0.10 !*vampire*)
+  (0.01 !*dragon*))
 
 
 ;;;; Roles --------------------------------------------------------------------
@@ -287,26 +274,37 @@
 
 
 ;;;; Flavor -------------------------------------------------------------------
-(defparameter *monster* nil)
-
 (define-string scene
-  ("images of" [monster monster-plural]))
+  ("images of" [monster monster-plural] "fighting" [monster monster-plural])
+  ("a picture of a famous" [monster monster-singular] role))
+
+(define-string picture
+  "painted with"
+  "adorned with")
+
+(define-string flavor
+  (picture scene))
 
 (define-string sales-pitch
   "Only used once!"
   "Brand new!"
-  ("I bought it from" [monster monster-adjective a] role)
+  ("I bought it from" [monster monster-adjective a] role :. ".")
+  "Look at the workmanship!"
   "This is gonna go fast!")
 
 
 ;;;; Main ---------------------------------------------------------------------
-(define-rule item
-  (eval (weapon-description (weapon)))
-  (eval (armor-description (armor))))
+(define-rule base-item
+  !(weapon-description @weapon)
+  !(armor-description @armor))
+
+(define-string (item :distribution :weighted)
+  (2 base-item)
+  (1 (base-item :. "," flavor)))
 
 (define-string offer
-  ("FOR SALE:" #\newline :.
-   [item cap] #\newline #\newline :.
+  ("FOR SALE:" [item cap]
+   :. #\newline #\newline :.
    sales-pitch))
 
 

@@ -1,4 +1,4 @@
-.PHONY: vendor
+.PHONY: vendor binary
 
 # Vendor ----------------------------------------------------------------------
 vendor/quickutils.lisp: vendor/make-quickutils.lisp
@@ -9,6 +9,8 @@ vendor: vendor/quickutils.lisp
 
 # Build -----------------------------------------------------------------------
 lisps := $(shell ffind '\.(asd|lisp|ros)$$')
+
+binary: build/magitek
 
 build/magitek: $(lisps)
 	ros build build/magitek.ros
