@@ -4,6 +4,7 @@
   "quickutils.lisp"
   :utilities '(
 
+               :compose
                :curry
                :ensure-boolean
                :ensure-gethash
@@ -12,6 +13,7 @@
                :once-only
                :rcurry
                :read-file-into-string
+               :symb
                :with-gensyms
                :write-string-into-file
 

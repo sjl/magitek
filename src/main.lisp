@@ -28,4 +28,6 @@
   (db-initialize)
   (tt-load-credentials)
   (run-bot :git-commands #'magitek.robots.git-commands:random-string
+           :hours 12)
+  (run-bot :rpg-shopkeeper #'magitek.robots.rpg-shopkeeper:random-string
            :hours 12))

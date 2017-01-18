@@ -46,6 +46,16 @@
     :magitek.quickutils)
   (:export :random-string))
 
+(defpackage :magitek.robots.rpg-shopkeeper
+  (:use
+    :cl
+    :iterate
+    :cl-arrows
+    :losh
+    :chancery
+    :magitek.quickutils)
+  (:export :random-string))
+
 (defpackage :magitek.robots.hacker-booze
   (:use
     :cl

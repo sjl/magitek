@@ -2,7 +2,7 @@
 ;;;; See http://quickutil.org for details.
 
 ;;;; To regenerate:
-;;;; (qtlc:save-utils-as "quickutils.lisp" :utilities '(:CURRY :ENSURE-BOOLEAN :ENSURE-GETHASH :ENSURE-LIST :N-GRAMS :ONCE-ONLY :RCURRY :READ-FILE-INTO-STRING :WITH-GENSYMS :WRITE-STRING-INTO-FILE) :ensure-package T :package "MAGITEK.QUICKUTILS")
+;;;; (qtlc:save-utils-as "quickutils.lisp" :utilities '(:COMPOSE :CURRY :ENSURE-BOOLEAN :ENSURE-GETHASH :ENSURE-LIST :N-GRAMS :ONCE-ONLY :RCURRY :READ-FILE-INTO-STRING :SYMB :WITH-GENSYMS :WRITE-STRING-INTO-FILE) :ensure-package T :package "MAGITEK.QUICKUTILS")
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (unless (find-package "MAGITEK.QUICKUTILS")
@@ -14,11 +14,11 @@
 
 (when (boundp '*utilities*)
   (setf *utilities* (union *utilities* '(:MAKE-GENSYM-LIST :ENSURE-FUNCTION
-                                         :CURRY :ENSURE-BOOLEAN :ENSURE-GETHASH
-                                         :ENSURE-LIST :TAKE :N-GRAMS :ONCE-ONLY
-                                         :RCURRY :WITH-OPEN-FILE*
-                                         :WITH-INPUT-FROM-FILE
-                                         :READ-FILE-INTO-STRING
+                                         :COMPOSE :CURRY :ENSURE-BOOLEAN
+                                         :ENSURE-GETHASH :ENSURE-LIST :TAKE
+                                         :N-GRAMS :ONCE-ONLY :RCURRY
+                                         :WITH-OPEN-FILE* :WITH-INPUT-FROM-FILE
+                                         :READ-FILE-INTO-STRING :MKSTR :SYMB
                                          :STRING-DESIGNATOR :WITH-GENSYMS
                                          :WITH-OUTPUT-TO-FILE
                                          :WRITE-STRING-INTO-FILE))))
@@ -45,6 +45,35 @@ it must be a function name and its `fdefinition` is returned."
         function-designator
         (fdefinition function-designator)))
   )                                        ; eval-when
+
+  (defun compose (function &rest more-functions)
+    "Returns a function composed of `function` and `more-functions` that applies its ;
+arguments to to each in turn, starting from the rightmost of `more-functions`,
+and then calling the next one with the primary value of the last."
+    (declare (optimize (speed 3) (safety 1) (debug 1)))
+    (reduce (lambda (f g)
+              (let ((f (ensure-function f))
+                    (g (ensure-function g)))
+                (lambda (&rest arguments)
+                  (declare (dynamic-extent arguments))
+                  (funcall f (apply g arguments)))))
+            more-functions
+            :initial-value function))
+
+  (define-compiler-macro compose (function &rest more-functions)
+    (labels ((compose-1 (funs)
+               (if (cdr funs)
+                   `(funcall ,(car funs) ,(compose-1 (cdr funs)))
+                   `(apply ,(car funs) arguments))))
+      (let* ((args (cons function more-functions))
+             (funs (make-gensym-list (length args) "COMPOSE")))
+        `(let ,(loop for f in funs for arg in args
+                     collect `(,f (ensure-function ,arg)))
+           (declare (optimize (speed 3) (safety 1) (debug 1)))
+           (lambda (&rest arguments)
+             (declare (dynamic-extent arguments))
+             ,(compose-1 funs))))))
+  
 
   (defun curry (function &rest arguments)
     "Returns a function that applies `arguments` and the arguments
@@ -210,6 +239,23 @@ unless it's `nil`, which means the system default."
               :while (= bytes-read buffer-size)))))))
   
 
+  (defun mkstr (&rest args)
+    "Receives any number of objects (string, symbol, keyword, char, number), extracts all printed representations, and concatenates them all into one string.
+
+Extracted from _On Lisp_, chapter 4."
+    (with-output-to-string (s)
+      (dolist (a args) (princ a s))))
+  
+
+  (defun symb (&rest args)
+    "Receives any number of objects, concatenates all into one string with `#'mkstr` and converts them to symbol.
+
+Extracted from _On Lisp_, chapter 4.
+
+See also: `symbolicate`"
+    (values (intern (apply #'mkstr args))))
+  
+
   (deftype string-designator ()
     "A string designator type. A string designator is either a string, a symbol,
 or a character."
@@ -281,8 +327,8 @@ unless it's `nil`, which means the system default."
       (write-sequence string file-stream)))
   
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '(curry ensure-boolean ensure-gethash ensure-list n-grams once-only
-            rcurry read-file-into-string with-gensyms with-unique-names
-            write-string-into-file)))
+  (export '(compose curry ensure-boolean ensure-gethash ensure-list n-grams
+            once-only rcurry read-file-into-string symb with-gensyms
+            with-unique-names write-string-into-file)))
 
 ;;;; END OF quickutils.lisp ;;;;

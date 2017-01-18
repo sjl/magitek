@@ -37,5 +37,6 @@
                              (:file "markov")
                              (:module "robots"
                               :components ((:file "git-commands")
-                                           (:file "hacker-booze")))
+                                           (:file "hacker-booze")
+                                           (:file "rpg-shopkeeper")))
                              (:file "main")))))

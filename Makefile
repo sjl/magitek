@@ -15,11 +15,9 @@ build/magitek: $(lisps)
 
 update-deps:
 	hg -R /home/sjl/chancery -v pull -u
+	hg -R /home/sjl/cl-losh -v pull -u
 
-/opt/antipodes/antipodes: update-deps build/antipodes
-	rm -f /opt/antipodes/antipodes
-	cp build/antipodes /opt/antipodes/antipodes
-
-deploy: build/magitek
+deploy: build/magitek update-deps
 	rsync --exclude=build/magitek --exclude=.hg --exclude=database.sqlite --exclude=corpora -avz . silt:/home/sjl/magitek
+	ssh silt make -C /home/sjl/magitek update-deps
 	ssh silt make -C /home/sjl/magitek build/magitek

@@ -17,8 +17,8 @@
 
 ;;;; Hacker News --------------------------------------------------------------
 (defparameter *errors* 0)
-(defparameter *stories-per-corpus* 20)
-(defparameter *max-comments-per-story* 100)
+(defparameter *stories-per-corpus* 30)
+(defparameter *max-comments-per-story* 200)
 (defparameter *hn-corpus-path* "corpora/hacker-news.txt")
 
 (defun firebase-get (url)
