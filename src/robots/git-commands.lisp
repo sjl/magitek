@@ -203,7 +203,7 @@
   (!command [noun a] temporal-adverb refreshing git-location)
   (!command "and push all" adjective [noun s] "to" location)
   (!command "all" adjective [noun s] "in" git-location)
-  (!command "the" extremum "and merge it into" git-location)
+  (!command "the" extremum noun "and merge it into" git-location)
   (!command "some" [noun s] "from a remote")
   (!command "two or more" [noun s] "and save them to" location)
   ("move or" !command [noun a] "in" git-location)
