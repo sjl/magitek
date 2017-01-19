@@ -52,5 +52,5 @@
     (chirp:tweet text)))
 
 (defun tt-tweetable-p (text)
-  (< (length text) 130))
+  (< 30 (length text) 138))
 

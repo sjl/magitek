@@ -1,6 +1,12 @@
 (in-package :magitek.robots.rpg-shopkeeper)
 (named-readtables:in-readtable :chancery)
 
+;;;; Utils --------------------------------------------------------------------
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun muffenize (str)
+    (symb '* (string-upcase (substitute #\- #\space str)) '*)))
+
+
 ;;;; General ------------------------------------------------------------------
 (define-rule (bonus :distribution (:zipf :exponent 1.8))
   1 2 3 4 5)
@@ -8,41 +14,37 @@
 
 ;;;; Materials ----------------------------------------------------------------
 (defclass* material ()
-  (name multiplier))
+  (kind name multiplier))
 
-(defun make-material (name multiplier)
-  (make-instance 'material :name name :multiplier multiplier))
+(defun make-material (kind name multiplier)
+  (make-instance 'material :kind kind :name name :multiplier multiplier))
 
 (defmethod print-object ((o material) s)
   (print-unreadable-object (o s :type t)
     (princ (material-name o) s)))
 
-(defmacro define-material (name multiplier)
-  `(defparameter ,(symb '* (string-upcase (substitute #\- #\space name)) '*)
-     (make-material ,name ,multiplier)))
+(defmacro define-material (kind name multiplier)
+  `(defparameter ,(muffenize name)
+     (make-material ,kind ,name ,multiplier)))
 
 
-(define-material "iron" 1.0)
-(define-material "steel" 1.5)
-(define-material "silver" 2.0)
-(define-material "meteoric iron" 4.0)
-(define-material "mithril" 10.0)
-(define-material "adamantine" 11.0)
-
-
-(define-material "cloth" 1.0)
-(define-material "leather" 1.5)
-(define-material "silk" 2.0)
-(define-material "spider silk" 6.0)
-
-
-(define-material "pine" 1.0) ; http://www.wood-database.com/wood-articles/bow-woods/
-(define-material "poplar" 1.2)
-(define-material "walnut" 1.3)
-(define-material "maple" 2.0)
-(define-material "oak" 3.0)
-(define-material "yew" 5.0)
-(define-material "rosewood" 10.0)
+(define-material :metal "iron" 1.0)
+(define-material :metal "steel" 1.5)
+(define-material :metal "silver" 5.0)
+(define-material :metal "meteoric iron" 10.0)
+(define-material :metal "mithril" 50.0)
+(define-material :metal "adamantine" 60.0)
+(define-material :textile "cloth" 1.0)
+(define-material :textile "leather" 1.5)
+(define-material :textile "silk" 2.0)
+(define-material :textile "spider silk" 6.0)
+(define-material :wood "pine" 1.0) ; http://www.wood-database.com/wood-articles/bow-woods/
+(define-material :wood "poplar" 1.2)
+(define-material :wood "walnut" 1.3)
+(define-material :wood "maple" 2.0)
+(define-material :wood "oak" 3.0)
+(define-material :wood "yew" 5.0)
+(define-material :wood "rosewood" 10.0)
 
 
 (define-rule (metal :distribution :zipf)
@@ -69,6 +71,26 @@
   !*rosewood*)
 
 
+(define-string material-picture-wood
+  "carved with images of"
+  "covered in carvings of"
+  "painted with pictures of")
+
+(define-string material-picture-metal
+  "engraved with an image of"
+  "painted with images of")
+
+(define-string material-picture-textile
+  "embroidered with images of")
+
+
+(defun material-picture (material)
+  (ecase (material-kind material)
+    (:metal (material-picture-metal))
+    (:wood (material-picture-wood))
+    (:textile (material-picture-textile))))
+
+
 ;;;; Monsters -----------------------------------------------------------------
 (defclass* monster ()
   (singular multiplier plural adjective))
@@ -85,7 +107,7 @@
     (princ (monster-singular o) s)))
 
 (defmacro define-monster (singular multiplier plural adjective)
-  `(defparameter ,(symb '* (string-upcase singular) '*)
+  `(defparameter ,(muffenize singular)
      (make-monster
        ,singular
        ,multiplier
@@ -136,40 +158,129 @@
   ("poison"      "venomous"))
 
 
-;;;; Armor --------------------------------------------------------------------
-(define-rule armor-piece
-  "scale mail"
-  "ring mail"
-  "chain mail"
-  "plate mail")
+;;;; Pieces -------------------------------------------------------------------
+(defclass* piece ()
+  (name base-value))
 
-(define-rule clothing-piece
-  "robe"
-  "shirt"
-  "pants"
-  "dress"
-  "skirt")
+(defmethod print-object ((o piece) stream)
+  (print-unreadable-object (o stream :type t)
+    (princ (piece-name o) stream)))
+
+(defmacro define-piece (name base-value)
+  `(defparameter ,(muffenize name)
+     (make-instance 'piece
+       :name ,name
+       :base-value ,base-value)))
 
 
-(define-rule armor-enchantment
-  (:protection-from monster)
+;;;; Ornaments ----------------------------------------------------------------
+(define-string ornament-scene
+  ([monster monster-plural] "fighting" [monster monster-plural])
+  ("a famous" [monster monster-singular] role))
+
+(define-string word-adjective
+  "mysterious"
+  "ancient"
+  "glowing")
+
+(define-string word-noun
+  "runes"
+  "symbols")
+
+(define-string ornament-words
+  ("covered in" word-adjective word-noun))
+
+(define-rule (ornament :arguments (material))
+  !$(!(material-picture material) ornament-scene)
+  !$ornament-words
+  nil)
+
+
+;;;; Enchantments -------------------------------------------------------------
+(define-rule enchant-armor
+  (:protection monster)
   (:resistance element)
   (:bonus bonus))
 
-(define-rule vanilla-armor
-  (metal armor-piece)
-  (textile clothing-piece))
+(define-rule enchant-weapon
+  (:slaying monster)
+  (:element element)
+  (:bonus bonus))
 
-(define-rule (armor :distribution :weighted)
+(defun enchantment-multiplier (enchantment)
+  (declare (optimize (debug 3)))
+  (ecase (first enchantment)
+    ((nil) 1.0)
+    ((:protection :slaying) (+ 2.0 (monster-multiplier (second enchantment))))
+    ((:resistance :element) 5.0)
+    (:bonus (expt 2.0 (second enchantment)))))
+
+
+;;;; Armor --------------------------------------------------------------------
+(defclass* armor ()
+  (material piece enchantment ornament))
+
+(define-piece "scale mail" 50)
+(define-piece "ring mail" 50)
+(define-piece "chain mail" 150)
+(define-piece "breastplate" 200)
+(define-piece "plate mail" 350)
+
+(define-rule (piece-armor :distribution (:zipf :exponent 0.6))
+  !*scale-mail*
+  !*ring-mail*
+  !*chain-mail*
+  !*breastplate*
+  !*plate-mail*)
+
+
+(define-piece "robe" 10)
+(define-piece "shirt" 5)
+(define-piece "pants" 5)
+(define-piece "dress" 9)
+(define-piece "skirt" 5)
+
+(define-rule piece-clothing
+  !*robe*
+  !*shirt*
+  !*pants*
+  !*dress*
+  !*skirt*)
+
+
+(define-rule vanilla-armor
+  (metal piece-armor)
+  (textile piece-clothing))
+
+(define-rule (armor% :distribution :weighted)
   (2 (vanilla-armor nil))
-  (1 (vanilla-armor armor-enchantment)))
+  (1 (vanilla-armor enchant-armor)))
+
+
+(defun armor ()
+  (destructuring-bind ((material piece) enchantment)
+      (armor%)
+    (make-instance 'armor
+      :material material
+      :piece piece
+      :enchantment enchantment
+      :ornament (ornament material))))
+
+
+(defun armor-value (armor)
+  (let ((enchantment (armor-enchantment armor)))
+    (* (+ (* (-> armor armor-piece piece-base-value)
+             (-> armor armor-material material-multiplier))
+          (if enchantment 100 0))
+       (enchantment-multiplier enchantment)
+       (if (armor-ornament armor) 1.5 1.0))))
 
 
 (defgeneric enchanted-armor-description
   (base enchantment-type enchantment-arguments))
 
 (defmethod enchanted-armor-description
-    (base (e (eql :protection-from)) enchantment-args)
+    (base (e (eql :protection)) enchantment-args)
   (destructuring-bind (monster) enchantment-args
     (format nil "~A of protection from ~A" base (monster-plural monster))))
 
@@ -186,126 +297,131 @@
 
 
 (defun vanilla-armor-description (vanilla-armor)
-  (destructuring-bind (material piece) vanilla-armor
-    (format nil "~A ~A" (material-name material) piece)))
+  (format nil "~A ~A"
+          (-> vanilla-armor armor-material material-name)
+          (-> vanilla-armor armor-piece piece-name)))
 
 
 (defun armor-description (armor)
-  (destructuring-bind (vanilla enchant) armor
-    (let ((vanilla-description (vanilla-armor-description vanilla)))
-      (if enchant
-        (enchanted-armor-description vanilla-description
-                                     (first enchant)
-                                     (rest enchant))
-        vanilla-description))))
+  (let ((vanilla-description (vanilla-armor-description armor))
+        (enchantment (armor-enchantment armor))
+        (ornament (armor-ornament armor)))
+    (concatenate 'string
+                 (if enchantment
+                   (enchanted-armor-description vanilla-description
+                                                (first enchantment)
+                                                (rest enchantment))
+                   vanilla-description)
+                 (if ornament
+                   (format nil ", ~A" ornament)
+                   ""))))
 
 
-;;;; Weapons ------------------------------------------------------------------
-(define-rule melee-weapon
-  "dagger"
-  "longsword"
-  "short sword"
-  "hand axe"
-  "battleaxe"
-  "spear"
-  "halberd"
-  "scythe"
-  "scimitar"
-  "lance"
-  "hammer"
-  "staff"
-  "mace"
-  "flail")
+; ;;;; Weapons ------------------------------------------------------------------
+; (define-rule melee-weapon
+;   "dagger"
+;   "longsword"
+;   "short sword"
+;   "hand axe"
+;   "battleaxe"
+;   "spear"
+;   "halberd"
+;   "scythe"
+;   "scimitar"
+;   "lance"
+;   "hammer"
+;   "staff"
+;   "mace"
+;   "flail")
 
-(define-rule (bow-weapon :distribution :weighted)
-  (2 "shortbow")
-  (2 "longbow")
-  (1 "crossbow")
-  (1 "compound bow"))
-
-
-(define-rule weapon-enchantment
-  (:slaying monster)
-  (:element element)
-  (:bonus bonus))
+; (define-rule (bow-weapon :distribution :weighted)
+;   (2 "shortbow")
+;   (2 "longbow")
+;   (1 "crossbow")
+;   (1 "compound bow"))
 
 
-(define-rule vanilla-weapon
-  (metal melee-weapon)
-  (wood bow-weapon))
+; (define-rule vanilla-weapon
+;   (metal melee-weapon)
+;   (wood bow-weapon))
 
-(define-rule (weapon :distribution :weighted)
-  (1 (vanilla-weapon nil))
-  (1 (vanilla-weapon weapon-enchantment)))
-
-
-(defgeneric enchanted-weapon-description
-  (base enchantment-type enchantment-arguments))
-
-(defmethod enchanted-weapon-description
-    (base (e (eql :slaying)) enchantment-args)
-  (destructuring-bind (monster) enchantment-args
-    (format nil "~A of ~A-slaying" base (monster-singular monster))))
-
-(defmethod enchanted-weapon-description
-    (base (e (eql :element)) enchantment-args)
-  (destructuring-bind (element) enchantment-args
-    (format nil "~A ~A" (second element) base)))
-
-(defmethod enchanted-weapon-description
-    (base (e (eql :bonus)) enchantment-args)
-  (destructuring-bind (val) enchantment-args
-    (format nil "+~D ~A" val base)))
+; (define-rule (weapon :distribution :weighted)
+;   (1 (vanilla-weapon nil))
+;   (1 (vanilla-weapon weapon-enchantment)))
 
 
-(defun vanilla-weapon-description (vanilla-weapon)
-  (destructuring-bind (material piece) vanilla-weapon
-    (format nil "~A ~A" (material-name material) piece)))
+; (defgeneric enchanted-weapon-description
+;   (base enchantment-type enchantment-arguments))
+
+; (defmethod enchanted-weapon-description
+;     (base (e (eql :slaying)) enchantment-args)
+;   (destructuring-bind (monster) enchantment-args
+;     (format nil "~A of ~A-slaying" base (monster-singular monster))))
+
+; (defmethod enchanted-weapon-description
+;     (base (e (eql :element)) enchantment-args)
+;   (destructuring-bind (element) enchantment-args
+;     (format nil "~A ~A" (second element) base)))
+
+; (defmethod enchanted-weapon-description
+;     (base (e (eql :bonus)) enchantment-args)
+;   (destructuring-bind (val) enchantment-args
+;     (format nil "+~D ~A" val base)))
 
 
-(defun weapon-description (weapon)
-  (destructuring-bind (vanilla enchant) weapon
-    (let ((vanilla-description (vanilla-weapon-description vanilla)))
-      (if enchant
-        (enchanted-weapon-description vanilla-description
-                                      (first enchant)
-                                      (rest enchant))
-        vanilla-description))))
+; (defun vanilla-weapon-description (vanilla-weapon)
+;   (destructuring-bind (material piece) vanilla-weapon
+;     (format nil "~A ~A" (material-name material) piece)))
+
+
+; (defun weapon-description (weapon)
+;   (destructuring-bind (vanilla enchant) weapon
+;     (let ((vanilla-description (vanilla-weapon-description vanilla)))
+;       (if enchant
+;         (enchanted-weapon-description vanilla-description
+;                                       (first enchant)
+;                                       (rest enchant))
+;         vanilla-description))))
 
 
 ;;;; Flavor -------------------------------------------------------------------
-(define-string scene
-  ("images of" [monster monster-plural] "fighting" [monster monster-plural])
-  ("a picture of a famous" [monster monster-singular] role))
-
-(define-string picture
-  "painted with"
-  "adorned with")
-
-(define-string flavor
-  (picture scene))
-
 (define-string sales-pitch
   "Only used once!"
   "Brand new!"
+  "The blood will wash right off..."
   ("I bought it from" [monster monster-adjective a] role :. ".")
   "Look at the workmanship!"
   "This is gonna go fast!")
 
 
 ;;;; Main ---------------------------------------------------------------------
-(define-rule base-item
-  !(weapon-description @weapon)
-  !(armor-description @armor))
+(define-rule item
+  ; !(weapon-description @weapon)
+  armor)
 
-(define-string (item :distribution :weighted)
-  (2 base-item)
-  (1 (base-item :. "," flavor)))
+(defun item-description (item)
+  (etypecase item
+    (armor (armor-description item))))
 
-(define-string offer
-  ("FOR SALE:" [item cap]
-   :. #\newline #\newline :.
-   sales-pitch))
+(defun item-value (item)
+  (format nil "~:D"
+          (ceiling (etypecase item
+                     (armor (armor-value item))))))
+
+(define-string for-the-low-price
+  "only"
+  "just"
+  "yours for the low, low price of"
+  "for you, only"
+  "a steal at"
+  "on sale for")
+
+(defun offer ()
+  (let ((item (item)))
+    $("FOR SALE:" [!item item-description cap] :. "."
+      [for-the-low-price cap] !(item-value item) "GP."
+      :. #\newline #\newline :.
+      sales-pitch)))
 
 
 ;;;; API ----------------------------------------------------------------------
