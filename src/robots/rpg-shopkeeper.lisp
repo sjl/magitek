@@ -243,6 +243,45 @@
     (:bonus (expt 2.0 (second enchantment)))))
 
 
+(defgeneric enchanted-armor-description
+  (base enchantment-type enchantment-arguments))
+
+(defmethod enchanted-armor-description
+    (base (e (eql :protection)) enchantment-args)
+  (destructuring-bind (monster) enchantment-args
+    (format nil "~A of protection from ~A" base (monster-plural monster))))
+
+(defmethod enchanted-armor-description
+    (base (e (eql :resistance)) enchantment-args)
+  (destructuring-bind ((noun adjective)) enchantment-args
+    (declare (ignore adjective))
+    (format nil "~A of ~A resistance" base noun)))
+
+(defmethod enchanted-armor-description
+    (base (e (eql :bonus)) enchantment-args)
+  (destructuring-bind (val) enchantment-args
+    (format nil "+~D ~A" val base)))
+
+
+(defgeneric enchanted-weapon-description
+  (base enchantment-type enchantment-arguments))
+
+(defmethod enchanted-weapon-description
+    (base (e (eql :slaying)) enchantment-args)
+  (destructuring-bind (monster) enchantment-args
+    (format nil "~A of ~A-slaying" base (monster-singular monster))))
+
+(defmethod enchanted-weapon-description
+    (base (e (eql :element)) enchantment-args)
+  (destructuring-bind (element) enchantment-args
+    (format nil "~A ~A" (second element) base)))
+
+(defmethod enchanted-weapon-description
+    (base (e (eql :bonus)) enchantment-args)
+  (destructuring-bind (val) enchantment-args
+    (format nil "+~D ~A" val base)))
+
+
 ;;;; Armor --------------------------------------------------------------------
 (defclass* armor ()
   (material piece enchantment ornament))
@@ -307,26 +346,6 @@
           (if ornament 10 0))
        (enchantment-multiplier enchantment)
        (if ornament 1.5 1.0))))
-
-
-(defgeneric enchanted-armor-description
-  (base enchantment-type enchantment-arguments))
-
-(defmethod enchanted-armor-description
-    (base (e (eql :protection)) enchantment-args)
-  (destructuring-bind (monster) enchantment-args
-    (format nil "~A of protection from ~A" base (monster-plural monster))))
-
-(defmethod enchanted-armor-description
-    (base (e (eql :resistance)) enchantment-args)
-  (destructuring-bind ((noun adjective)) enchantment-args
-    (declare (ignore adjective))
-    (format nil "~A of ~A resistance" base noun)))
-
-(defmethod enchanted-armor-description
-    (base (e (eql :bonus)) enchantment-args)
-  (destructuring-bind (val) enchantment-args
-    (format nil "+~D ~A" val base)))
 
 
 (defun vanilla-armor-description (vanilla-armor)
@@ -435,25 +454,6 @@
        (if ornament 1.5 1.0))))
 
 
-(defgeneric enchanted-weapon-description
-  (base enchantment-type enchantment-arguments))
-
-(defmethod enchanted-weapon-description
-    (base (e (eql :slaying)) enchantment-args)
-  (destructuring-bind (monster) enchantment-args
-    (format nil "~A of ~A-slaying" base (monster-singular monster))))
-
-(defmethod enchanted-weapon-description
-    (base (e (eql :element)) enchantment-args)
-  (destructuring-bind (element) enchantment-args
-    (format nil "~A ~A" (second element) base)))
-
-(defmethod enchanted-weapon-description
-    (base (e (eql :bonus)) enchantment-args)
-  (destructuring-bind (val) enchantment-args
-    (format nil "+~D ~A" val base)))
-
-
 (defun vanilla-weapon-description (vanilla-weapon)
   (with-weapon (vanilla-weapon)
     (format nil "~A ~A"
@@ -540,7 +540,7 @@
 (defun offer ()
   (let ((item (item)))
     $("FOR SALE:" [!item item-description cap] :. "."
-      [for-the-low-price cap] !(item-value item) "GP."
+      [for-the-low-price cap] [!item item-value] "GP."
       :. #\newline #\newline :.
       sales-pitch)))
 
