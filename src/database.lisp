@@ -6,6 +6,10 @@
   (setf *database* (connect path))
   (values))
 
+(defun check-db ()
+  (when (null *database*)
+    (error "You forgot to run (spinup) again you fuckin moron.")))
+
 (defun db-initialize ()
   (execute-non-query *database*
     "CREATE TABLE IF NOT EXISTS tweets(
@@ -20,6 +24,7 @@
   (values))
 
 (defun db-insert-tweet (account tweet)
+  (check-db)
   (execute-non-query *database*
     "INSERT INTO tweets (account, content) VALUES (?, ?)"
     (aesthetic-string account)
@@ -28,6 +33,7 @@
 
 (defun db-tweeted-since-p (account minutes-ago)
   (check-type minutes-ago (integer 1))
+  (check-db)
   (ensure-boolean
     (execute-single *database*
       "SELECT content FROM tweets

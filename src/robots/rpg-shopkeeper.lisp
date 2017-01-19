@@ -318,70 +318,116 @@
 
 
 ; ;;;; Weapons ------------------------------------------------------------------
-; (define-rule melee-weapon
-;   "dagger"
-;   "longsword"
-;   "short sword"
-;   "hand axe"
-;   "battleaxe"
-;   "spear"
-;   "halberd"
-;   "scythe"
-;   "scimitar"
-;   "lance"
-;   "hammer"
-;   "staff"
-;   "mace"
-;   "flail")
+(defclass* weapon ()
+  (material piece enchantment ornament))
 
-; (define-rule (bow-weapon :distribution :weighted)
-;   (2 "shortbow")
-;   (2 "longbow")
-;   (1 "crossbow")
-;   (1 "compound bow"))
+(define-piece "dagger" 5)
+(define-piece "longsword" 50)
+(define-piece "short sword" 20)
+(define-piece "hand axe" 30)
+(define-piece "battleaxe" 80)
+(define-piece "spear" 20)
+(define-piece "halberd" 80)
+(define-piece "scythe" 50)
+(define-piece "scimitar" 50)
+(define-piece "lance" 70)
+(define-piece "warhammer" 80)
+(define-piece "staff" 5)
+(define-piece "mace" 25)
+(define-piece "flail" 45)
 
-
-; (define-rule vanilla-weapon
-;   (metal melee-weapon)
-;   (wood bow-weapon))
-
-; (define-rule (weapon :distribution :weighted)
-;   (1 (vanilla-weapon nil))
-;   (1 (vanilla-weapon weapon-enchantment)))
-
-
-; (defgeneric enchanted-weapon-description
-;   (base enchantment-type enchantment-arguments))
-
-; (defmethod enchanted-weapon-description
-;     (base (e (eql :slaying)) enchantment-args)
-;   (destructuring-bind (monster) enchantment-args
-;     (format nil "~A of ~A-slaying" base (monster-singular monster))))
-
-; (defmethod enchanted-weapon-description
-;     (base (e (eql :element)) enchantment-args)
-;   (destructuring-bind (element) enchantment-args
-;     (format nil "~A ~A" (second element) base)))
-
-; (defmethod enchanted-weapon-description
-;     (base (e (eql :bonus)) enchantment-args)
-;   (destructuring-bind (val) enchantment-args
-;     (format nil "+~D ~A" val base)))
+(define-rule piece-melee
+  !*dagger*
+  !*longsword*
+  !*short-sword*
+  !*hand-axe*
+  !*battleaxe*
+  !*spear*
+  !*halberd*
+  !*scythe*
+  !*scimitar*
+  !*lance*
+  !*warhammer*
+  !*staff*
+  !*mace*
+  !*flail*)
 
 
-; (defun vanilla-weapon-description (vanilla-weapon)
-;   (destructuring-bind (material piece) vanilla-weapon
-;     (format nil "~A ~A" (material-name material) piece)))
+(define-piece "shortbow" 35)
+(define-piece "longbow" 60)
+(define-piece "crossbow" 80)
+(define-piece "compound bow" 80)
+
+(define-rule (piece-ranged :distribution :weighted)
+  (2 !*shortbow*)
+  (2 !*longbow*)
+  (1 !*crossbow*)
+  (1 !*compound-bow*))
 
 
-; (defun weapon-description (weapon)
-;   (destructuring-bind (vanilla enchant) weapon
-;     (let ((vanilla-description (vanilla-weapon-description vanilla)))
-;       (if enchant
-;         (enchanted-weapon-description vanilla-description
-;                                       (first enchant)
-;                                       (rest enchant))
-;         vanilla-description))))
+(define-rule vanilla-weapon
+  (metal piece-melee)
+  (wood piece-ranged))
+
+(define-rule (weapon% :distribution :weighted)
+  (2 (vanilla-weapon nil))
+  (1 (vanilla-weapon enchant-weapon)))
+
+(defun weapon ()
+  (destructuring-bind ((material piece) enchantment)
+      (weapon%)
+    (make-instance 'weapon
+      :material material
+      :piece piece
+      :enchantment enchantment
+      :ornament (ornament material))))
+
+
+(defun weapon-value (weapon)
+  (let ((enchantment (weapon-enchantment weapon)))
+    (* (+ (* (-> weapon weapon-piece piece-base-value)
+             (-> weapon weapon-material material-multiplier))
+          (if enchantment 100 0))
+       (enchantment-multiplier enchantment)
+       (if (weapon-ornament weapon) 1.5 1.0))))
+
+(defgeneric enchanted-weapon-description
+  (base enchantment-type enchantment-arguments))
+
+(defmethod enchanted-weapon-description
+    (base (e (eql :slaying)) enchantment-args)
+  (destructuring-bind (monster) enchantment-args
+    (format nil "~A of ~A-slaying" base (monster-singular monster))))
+
+(defmethod enchanted-weapon-description
+    (base (e (eql :element)) enchantment-args)
+  (destructuring-bind (element) enchantment-args
+    (format nil "~A ~A" (second element) base)))
+
+(defmethod enchanted-weapon-description
+    (base (e (eql :bonus)) enchantment-args)
+  (destructuring-bind (val) enchantment-args
+    (format nil "+~D ~A" val base)))
+
+
+(defun vanilla-weapon-description (vanilla-weapon)
+  (format nil "~A ~A"
+          (-> vanilla-weapon weapon-material material-name)
+          (-> vanilla-weapon weapon-piece piece-name)))
+
+(defun weapon-description (weapon)
+  (let ((vanilla-description (vanilla-weapon-description weapon))
+        (enchantment (weapon-enchantment weapon))
+        (ornament (weapon-ornament weapon)))
+    (concatenate 'string
+                 (if enchantment
+                   (enchanted-weapon-description vanilla-description
+                                                 (first enchantment)
+                                                 (rest enchantment))
+                   vanilla-description)
+                 (if ornament
+                   (format nil ", ~A" ornament)
+                   ""))))
 
 
 ;;;; Flavor -------------------------------------------------------------------
@@ -394,27 +440,47 @@
   "This is gonna go fast!")
 
 
-;;;; Main ---------------------------------------------------------------------
-(define-rule item
-  ; !(weapon-description @weapon)
-  armor)
+;;;; Prices -------------------------------------------------------------------
+(defun round-to (n sigfigs)
+  (let* ((digits (ceiling (log n 10)))
+         (div (expt 10 (max 0 (- digits sigfigs)))))
+    (-<> n
+      (round <> div)
+      (* <> div))))
 
-(defun item-description (item)
-  (etypecase item
-    (armor (armor-description item))))
+(defun sanitize-price (price)
+  (let ((price (round-to price 3)))
+    (if (< 50 price)
+      (* 5 (round price 5))
+      price)))
 
 (defun item-value (item)
-  (format nil "~:D"
-          (ceiling (etypecase item
-                     (armor (armor-value item))))))
+  (-<> (etypecase item
+         (armor (armor-value item))
+         (weapon (weapon-value item)))
+    (sanitize-price <>)
+    (format nil "~:D" <>)))
+
 
 (define-string for-the-low-price
   "only"
   "just"
   "yours for the low, low price of"
   "for you, only"
+  "on clearance for just"
   "a steal at"
   "on sale for")
+
+
+;;;; Main ---------------------------------------------------------------------
+(define-rule item
+  weapon
+  armor)
+
+(defun item-description (item)
+  (etypecase item
+    (armor (armor-description item))
+    (weapon (weapon-description item))))
 
 (defun offer ()
   (let ((item (item)))
@@ -423,6 +489,13 @@
       :. #\newline #\newline :.
       sales-pitch)))
 
+
+; (loop :repeat 10 :do
+;       (terpri)
+;       (terpri)
+;       (print '-------------------------------)
+;       (terpri)
+;       (princ (offer)))
 
 ;;;; API ----------------------------------------------------------------------
 (defun random-string ()
