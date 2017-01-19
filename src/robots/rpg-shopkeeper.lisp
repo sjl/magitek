@@ -6,89 +6,14 @@
   (defun muffenize (str)
     (symb '* (string-upcase (substitute #\- #\space str)) '*)))
 
+(defmacro maybe (expr &optional (chance 0.5))
+  `(when (randomp ,chance)
+     ,expr))
+
 
 ;;;; General ------------------------------------------------------------------
 (define-rule (bonus :distribution (:zipf :exponent 1.8))
   1 2 3 4 5)
-
-
-;;;; Materials ----------------------------------------------------------------
-(defclass* material ()
-  (kind name multiplier))
-
-(defun make-material (kind name multiplier)
-  (make-instance 'material :kind kind :name name :multiplier multiplier))
-
-(defmethod print-object ((o material) s)
-  (print-unreadable-object (o s :type t)
-    (princ (material-name o) s)))
-
-(defmacro define-material (kind name multiplier)
-  `(defparameter ,(muffenize name)
-     (make-material ,kind ,name ,multiplier)))
-
-
-(define-material :metal "iron" 1.0)
-(define-material :metal "steel" 1.5)
-(define-material :metal "silver" 5.0)
-(define-material :metal "meteoric iron" 10.0)
-(define-material :metal "mithril" 50.0)
-(define-material :metal "adamantine" 60.0)
-(define-material :textile "cloth" 1.0)
-(define-material :textile "leather" 1.5)
-(define-material :textile "silk" 2.0)
-(define-material :textile "spider silk" 6.0)
-(define-material :wood "pine" 1.0) ; http://www.wood-database.com/wood-articles/bow-woods/
-(define-material :wood "poplar" 1.2)
-(define-material :wood "walnut" 1.3)
-(define-material :wood "maple" 2.0)
-(define-material :wood "oak" 3.0)
-(define-material :wood "yew" 5.0)
-(define-material :wood "rosewood" 10.0)
-
-
-(define-rule (metal :distribution :zipf)
-  !*iron*
-  !*steel*
-  !*silver*
-  !*meteoric-iron*
-  !*mithril*
-  !*adamantine*)
-
-(define-rule (textile :distribution :weighted)
-  (1.00 !*cloth*)
-  (1.00 !*leather*)
-  (0.80 !*silk*)
-  (0.01 !*spider-silk*))
-
-(define-rule (wood :distribution (:zipf :exponent 0.8))
-  !*pine*
-  !*poplar*
-  !*walnut*
-  !*maple*
-  !*oak*
-  !*yew*
-  !*rosewood*)
-
-
-(define-string material-picture-wood
-  "carved with images of"
-  "covered in carvings of"
-  "painted with pictures of")
-
-(define-string material-picture-metal
-  "engraved with an image of"
-  "painted with images of")
-
-(define-string material-picture-textile
-  "embroidered with images of")
-
-
-(defun material-picture (material)
-  (ecase (material-kind material)
-    (:metal (material-picture-metal))
-    (:wood (material-picture-wood))
-    (:textile (material-picture-textile))))
 
 
 ;;;; Monsters -----------------------------------------------------------------
@@ -142,20 +67,121 @@
   (0.01 !*dragon*))
 
 
+;;;; Materials ----------------------------------------------------------------
+(defclass* material ()
+  (kind name multiplier))
+
+(defun make-material (kind name multiplier)
+  (make-instance 'material :kind kind :name name :multiplier multiplier))
+
+(defmethod print-object ((o material) s)
+  (print-unreadable-object (o s :type t)
+    (princ (material-name o) s)))
+
+(defmacro define-material (kind name multiplier)
+  `(defparameter ,(muffenize name)
+     (make-material ,kind ,name ,multiplier)))
+
+
+(define-material :metal "iron" 1.0)
+(define-material :metal "steel" 1.5)
+(define-material :metal "silver" 5.0)
+(define-material :metal "meteoric iron" 10.0)
+(define-material :metal "mithril" 50.0)
+(define-material :metal "adamantine" 60.0)
+(define-material :textile "cloth" 1.0)
+(define-material :textile "leather" 1.5)
+(define-material :textile "silk" 2.0)
+(define-material :textile "spider silk" 6.0)
+(define-material :wood "pine" 1.0) ; http://www.wood-database.com/wood-articles/bow-woods/
+(define-material :wood "poplar" 1.2)
+(define-material :wood "walnut" 1.3)
+(define-material :wood "maple" 2.0)
+(define-material :wood "oak" 3.0)
+(define-material :wood "yew" 5.0)
+(define-material :wood "rosewood" 10.0)
+(define-material :skin "leather" 1.0)
+
+
+(define-rule (metal :distribution :zipf)
+  !*iron*
+  !*steel*
+  !*silver*
+  !*meteoric-iron*
+  !*mithril*
+  !*adamantine*)
+
+(define-rule (textile :distribution :weighted)
+  (1.00 !*cloth*)
+  (1.00 !*leather*)
+  (0.80 !*silk*)
+  (0.01 !*spider-silk*))
+
+(define-rule (wood :distribution (:zipf :exponent 0.8))
+  !*pine*
+  !*poplar*
+  !*walnut*
+  !*maple*
+  !*oak*
+  !*yew*
+  !*rosewood*)
+
+(define-rule (skin :distribution :weighted)
+  (3 !*leather*)
+  (1 !(let ((monster (monster)))
+        (make-material :skin
+                       $(!(monster-singular monster) :. "skin")
+                       (1+ (monster-multiplier monster))))))
+
+
+(define-string material-picture-wood
+  "carved with images of"
+  "covered in carvings of"
+  "painted with pictures of")
+
+(define-string material-picture-metal
+  "engraved with an image of"
+  "etched with a picture of"
+  "painted with images of")
+
+(define-string material-picture-textile
+  "sewn with pictures of"
+  "embroidered with images of")
+
+(define-string material-picture-skin
+  "dyed with images of"
+  "sewn with pictures of"
+  "embossed with drawings of")
+
+
+(defun material-picture (material)
+  (ecase (material-kind material)
+    (:metal (material-picture-metal))
+    (:wood (material-picture-wood))
+    (:textile (material-picture-textile))
+    (:skin (material-picture-skin))))
+
+
 ;;;; Roles --------------------------------------------------------------------
 (define-rule role
   "cleric"
   "warrior"
   "wizard"
+  "bard"
+  "jester"
+  "priest"
+  "hermit"
   "rogue")
 
 
 ;;;; Elements -----------------------------------------------------------------
 (define-rule element
-  ("ice"         "icy")
-  ("fire"        "flaming")
-  ("electricity" "electrified")
-  ("poison"      "venomous"))
+  ("good"      "holy")
+  ("evil"      "unholy")
+  ("ice"       "icy")
+  ("fire"      "flaming")
+  ("lightning" "electrified")
+  ("poison"    "venomous"))
 
 
 ;;;; Pieces -------------------------------------------------------------------
@@ -175,6 +201,7 @@
 
 ;;;; Ornaments ----------------------------------------------------------------
 (define-string ornament-scene
+  "a strange land"
   ([monster monster-plural] "fighting" [monster monster-plural])
   ("a famous" [monster monster-singular] role))
 
@@ -220,6 +247,10 @@
 (defclass* armor ()
   (material piece enchantment ornament))
 
+(define-with-macro armor
+  material piece enchantment ornament)
+
+
 (define-piece "scale mail" 50)
 (define-piece "ring mail" 50)
 (define-piece "chain mail" 150)
@@ -248,9 +279,10 @@
   !*skirt*)
 
 
-(define-rule vanilla-armor
-  (metal piece-armor)
-  (textile piece-clothing))
+(define-rule (vanilla-armor :distribution :weighted)
+  (1 (metal piece-armor))
+  (1 (textile piece-clothing))
+  (0.2 (skin piece-clothing)))
 
 (define-rule (armor% :distribution :weighted)
   (2 (vanilla-armor nil))
@@ -268,12 +300,13 @@
 
 
 (defun armor-value (armor)
-  (let ((enchantment (armor-enchantment armor)))
-    (* (+ (* (-> armor armor-piece piece-base-value)
-             (-> armor armor-material material-multiplier))
-          (if enchantment 100 0))
+  (with-armor (armor)
+    (* (+ (* (-> piece piece-base-value)
+             (-> material material-multiplier))
+          (if enchantment 100 0)
+          (if ornament 10 0))
        (enchantment-multiplier enchantment)
-       (if (armor-ornament armor) 1.5 1.0))))
+       (if ornament 1.5 1.0))))
 
 
 (defgeneric enchanted-armor-description
@@ -321,6 +354,10 @@
 (defclass* weapon ()
   (material piece enchantment ornament))
 
+(define-with-macro weapon
+  material piece enchantment ornament)
+
+
 (define-piece "dagger" 5)
 (define-piece "longsword" 50)
 (define-piece "short sword" 20)
@@ -335,6 +372,7 @@
 (define-piece "staff" 5)
 (define-piece "mace" 25)
 (define-piece "flail" 45)
+(define-piece "sling" 5)
 
 (define-rule piece-melee
   !*dagger*
@@ -358,16 +396,20 @@
 (define-piece "crossbow" 80)
 (define-piece "compound bow" 80)
 
-(define-rule (piece-ranged :distribution :weighted)
+(define-rule (piece-bow :distribution :weighted)
   (2 !*shortbow*)
   (2 !*longbow*)
   (1 !*crossbow*)
   (1 !*compound-bow*))
 
+(define-rule piece-sling
+  !*sling*)
 
-(define-rule vanilla-weapon
-  (metal piece-melee)
-  (wood piece-ranged))
+
+(define-rule (vanilla-weapon :distribution :weighted)
+  (2 (metal piece-melee))
+  (1 (wood piece-bow))
+  (0.5 (skin piece-sling)))
 
 (define-rule (weapon% :distribution :weighted)
   (2 (vanilla-weapon nil))
@@ -384,12 +426,14 @@
 
 
 (defun weapon-value (weapon)
-  (let ((enchantment (weapon-enchantment weapon)))
-    (* (+ (* (-> weapon weapon-piece piece-base-value)
-             (-> weapon weapon-material material-multiplier))
-          (if enchantment 100 0))
+  (with-weapon (weapon)
+    (* (+ (* (-> piece piece-base-value)
+             (-> material material-multiplier))
+          (if enchantment 100 0)
+          (if ornament 10 0))
        (enchantment-multiplier enchantment)
-       (if (weapon-ornament weapon) 1.5 1.0))))
+       (if ornament 1.5 1.0))))
+
 
 (defgeneric enchanted-weapon-description
   (base enchantment-type enchantment-arguments))
@@ -411,9 +455,10 @@
 
 
 (defun vanilla-weapon-description (vanilla-weapon)
-  (format nil "~A ~A"
-          (-> vanilla-weapon weapon-material material-name)
-          (-> vanilla-weapon weapon-piece piece-name)))
+  (with-weapon (vanilla-weapon)
+    (format nil "~A ~A"
+            (-> material material-name)
+            (-> piece piece-name))))
 
 (defun weapon-description (weapon)
   (let ((vanilla-description (vanilla-weapon-description weapon))
@@ -431,10 +476,18 @@
 
 
 ;;;; Flavor -------------------------------------------------------------------
+(define-string fluid
+  "blood"
+  "slime")
+
 (define-string sales-pitch
   "Only used once!"
   "Brand new!"
-  "The blood will wash right off..."
+  ("That" fluid "will wash right off...")
+  "You won't find a better deal!"
+  "This could save your life!"
+  "It breaks my heart to part with it..."
+  "Its last owner... doesn't need it anymore."
   ("I bought it from" [monster monster-adjective a] role :. ".")
   "Look at the workmanship!"
   "This is gonna go fast!")
@@ -450,9 +503,11 @@
 
 (defun sanitize-price (price)
   (let ((price (round-to price 3)))
-    (if (< 50 price)
-      (* 5 (round price 5))
-      price)))
+    (cond
+      ((< price 50) price)
+      ((in-range-p 50 price 100) (* 5 (round price 5)))
+      ((in-range-p 100 price 1000) (* 10 (round price 10)))
+      (t price))))
 
 (defun item-value (item)
   (-<> (etypecase item
@@ -490,12 +545,14 @@
       sales-pitch)))
 
 
-; (loop :repeat 10 :do
-;       (terpri)
-;       (terpri)
-;       (print '-------------------------------)
-;       (terpri)
-;       (princ (offer)))
+(defun dump ()
+  (loop :repeat 10 :do
+        (terpri)
+        (terpri)
+        (print '-------------------------------)
+        (terpri)
+        (princ (offer))))
+
 
 ;;;; API ----------------------------------------------------------------------
 (defun random-string ()
