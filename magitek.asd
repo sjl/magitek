@@ -36,7 +36,8 @@
                              (:file "quickutils")))
                (:file "package")
                (:module "src" :serial t
-                :components ((:file "database")
+                :components ((:file "readtables")
+                             (:file "database")
                              (:file "twitter")
                              (:file "markov")
                              (:module "robots"

@@ -1,8 +1,4 @@
 (in-package :magitek.robots.rpg-shopkeeper)
-
-(named-readtables:defreadtable :nutbags-readtable
-  (:fuze :chancery :fare-quasiquote))
-
 (named-readtables:in-readtable :nutbags-readtable)
 
 ;;;; Utils --------------------------------------------------------------------
