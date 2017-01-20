@@ -244,7 +244,7 @@
 
 
 (defun enchanted-armor-description (base enchantment)
-  (ematch enchantment
+  (trivia:ematch enchantment
     (`(:protection ,monster)
      (format nil "~A of protection from ~A" base (monster-plural monster)))
     (`(:resistance (,element ,_))
@@ -253,7 +253,7 @@
      (format nil "+~D ~A" val base))))
 
 (defun enchanted-weapon-description (base enchantment)
-  (ematch enchantment
+  (trivia:ematch enchantment
     (`(:slaying ,monster)
      (format nil "~A of ~A-slaying" base (monster-singular monster)))
     (`(:element (,_ ,element))

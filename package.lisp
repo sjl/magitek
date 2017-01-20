@@ -2,7 +2,6 @@
   (:use
     :cl
     :iterate
-    :cl-arrows
     :losh
     :magitek.quickutils)
   (:export
@@ -29,7 +28,6 @@
     :cl
     :losh
     :iterate
-    :cl-arrows
     :magitek.quickutils)
   (:export
     :build-markov-generator
@@ -40,7 +38,6 @@
   (:use
     :cl
     :iterate
-    :cl-arrows
     :losh
     :chancery
     :magitek.quickutils)
@@ -50,9 +47,7 @@
   (:use
     :cl
     :iterate
-    :cl-arrows
     :losh
-    :trivia
     :chancery
     :magitek.quickutils)
   (:export :random-string))
@@ -61,7 +56,6 @@
   (:use
     :cl
     :iterate
-    :cl-arrows
     :losh
     :magitek.quickutils)
   (:export :random-string))
@@ -71,7 +65,6 @@
   (:use
     :cl
     :iterate
-    :cl-arrows
     :losh
     :magitek.twitter
     :magitek.database

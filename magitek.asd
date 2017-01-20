@@ -10,7 +10,6 @@
 
                :chancery
                :chirp
-               :cl-arrows
                :clss
                :drakma
                :fare-quasiquote
