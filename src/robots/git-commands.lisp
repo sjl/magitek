@@ -169,7 +169,7 @@
   ("-" :. letter [noun shellify string-upcase]))
 
 (define-string long-option%
-  !(let ((noun $[noun shellify]))
+  !(let ((noun (shellify noun)))
      $("--" :. !noun :. "=<" :. !noun :. ">"))
   ("--" :. action-verb)
   ("--" :. extremum)
@@ -198,7 +198,7 @@
 
 (define-string (description :arguments (command commanding))
   (look-for location "for the" age noun "and" !command "it")
-  ("read" (eval (+ 2 (random 2000))) "bytes from" location "and" !command "them")
+  ("read" !(random-range 200 9999) "bytes from" location "and" !command "them")
   (!command "the" extremum noun "in" git-location)
   (!command [noun a] temporal-adverb refreshing git-location)
   (!command "and push all" adjective [noun s] "to" location)

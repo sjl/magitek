@@ -113,9 +113,8 @@
 
 (define-rule (textile :distribution :weighted)
   (1.00 !*cloth*)
-  (1.00 !*leather*)
   (0.80 !*silk*)
-  (0.01 !*spider-silk*))
+  (0.05 !*spider-silk*))
 
 (define-rule (wood :distribution (:zipf :exponent 0.8))
   !*pine*
