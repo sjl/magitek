@@ -13,6 +13,8 @@
                :cl-arrows
                :clss
                :drakma
+               :fare-quasiquote
+               :fare-quasiquote-readtable
                :flexi-streams
                :html-entities
                :iterate
@@ -23,6 +25,8 @@
                :sanitize
                :split-sequence
                :sqlite
+               :trivia
+               :trivia.quasiquote
 
                )
 

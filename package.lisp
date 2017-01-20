@@ -52,6 +52,7 @@
     :iterate
     :cl-arrows
     :losh
+    :trivia
     :chancery
     :magitek.quickutils)
   (:export :random-string))

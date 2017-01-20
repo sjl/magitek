@@ -1,5 +1,9 @@
 (in-package :magitek.robots.rpg-shopkeeper)
-(named-readtables:in-readtable :chancery)
+
+(named-readtables:defreadtable :nutbags-readtable
+  (:fuze :chancery :fare-quasiquote))
+
+(named-readtables:in-readtable :nutbags-readtable)
 
 ;;;; Utils --------------------------------------------------------------------
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -234,6 +238,7 @@
   (:element element)
   (:bonus bonus))
 
+
 (defun enchantment-multiplier (enchantment)
   (declare (optimize (debug 3)))
   (ecase (first enchantment)
@@ -243,43 +248,23 @@
     (:bonus (expt 2.0 (second enchantment)))))
 
 
-(defgeneric enchanted-armor-description
-  (base enchantment-type enchantment-arguments))
+(defun enchanted-armor-description (base enchantment)
+  (ematch enchantment
+    (`(:protection ,monster)
+     (format nil "~A of protection from ~A" base (monster-plural monster)))
+    (`(:resistance (,element ,_))
+     (format nil "~A of ~A resistance" base element))
+    (`(:bonus ,val)
+     (format nil "+~D ~A" val base))))
 
-(defmethod enchanted-armor-description
-    (base (e (eql :protection)) enchantment-args)
-  (destructuring-bind (monster) enchantment-args
-    (format nil "~A of protection from ~A" base (monster-plural monster))))
-
-(defmethod enchanted-armor-description
-    (base (e (eql :resistance)) enchantment-args)
-  (destructuring-bind ((noun adjective)) enchantment-args
-    (declare (ignore adjective))
-    (format nil "~A of ~A resistance" base noun)))
-
-(defmethod enchanted-armor-description
-    (base (e (eql :bonus)) enchantment-args)
-  (destructuring-bind (val) enchantment-args
-    (format nil "+~D ~A" val base)))
-
-
-(defgeneric enchanted-weapon-description
-  (base enchantment-type enchantment-arguments))
-
-(defmethod enchanted-weapon-description
-    (base (e (eql :slaying)) enchantment-args)
-  (destructuring-bind (monster) enchantment-args
-    (format nil "~A of ~A-slaying" base (monster-singular monster))))
-
-(defmethod enchanted-weapon-description
-    (base (e (eql :element)) enchantment-args)
-  (destructuring-bind (element) enchantment-args
-    (format nil "~A ~A" (second element) base)))
-
-(defmethod enchanted-weapon-description
-    (base (e (eql :bonus)) enchantment-args)
-  (destructuring-bind (val) enchantment-args
-    (format nil "+~D ~A" val base)))
+(defun enchanted-weapon-description (base enchantment)
+  (ematch enchantment
+    (`(:slaying ,monster)
+     (format nil "~A of ~A-slaying" base (monster-singular monster)))
+    (`(:element (,_ ,element))
+     (format nil "~A ~A" element base))
+    (`(:bonus ,val)
+     (format nil "+~D ~A" val base))))
 
 
 ;;;; Armor --------------------------------------------------------------------
@@ -361,8 +346,7 @@
     (concatenate 'string
                  (if enchantment
                    (enchanted-armor-description vanilla-description
-                                                (first enchantment)
-                                                (rest enchantment))
+                                                enchantment)
                    vanilla-description)
                  (if ornament
                    (format nil ", ~A" ornament)
@@ -467,8 +451,7 @@
     (concatenate 'string
                  (if enchantment
                    (enchanted-weapon-description vanilla-description
-                                                 (first enchantment)
-                                                 (rest enchantment))
+                                                 enchantment)
                    vanilla-description)
                  (if ornament
                    (format nil ", ~A" ornament)
