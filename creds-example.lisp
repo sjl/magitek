@@ -5,5 +5,5 @@
 
 (setf *credentials*
   '(
-    (auth-plist-goes-here use (authorize) to get it)
+    (auth-plist-goes-here use (tt-authorize) to get it)
     ))
