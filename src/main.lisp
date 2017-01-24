@@ -20,6 +20,11 @@
             #'magitek.robots.rpg-shopkeeper:random-string 
             12))
 
+(defparameter *frantic-barista*
+  (make-bot :frantic-barista
+            #'magitek.robots.frantic-barista:random-string
+            6))
+
 
 (defun hours-to-minutes (h)
   (* h 60))
@@ -53,5 +58,6 @@
 
 (defun main ()
   (spinup)
+  (run-bot *frantic-barista*)
   (run-bot *git-commands*)
   (run-bot *rpg-shopkeeper*))

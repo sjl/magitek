@@ -42,5 +42,6 @@
                              (:module "robots"
                               :components ((:file "git-commands")
                                            (:file "hacker-booze")
+                                           (:file "frantic-barista")
                                            (:file "rpg-shopkeeper")))
                              (:file "main")))))

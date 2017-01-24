@@ -52,6 +52,15 @@
     :magitek.quickutils)
   (:export :random-string))
 
+(defpackage :magitek.robots.frantic-barista
+  (:use
+    :cl
+    :iterate
+    :losh
+    :chancery
+    :magitek.quickutils)
+  (:export :random-string))
+
 (defpackage :magitek.robots.hacker-booze
   (:use
     :cl
