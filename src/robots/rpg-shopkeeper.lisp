@@ -320,8 +320,8 @@
 
 (defun armor-value (armor)
   (with-armor (armor)
-    (* (+ (* (-> piece piece-base-value)
-             (-> material material-multiplier))
+    (* (+ (* (-<> piece piece-base-value)
+             (-<> material material-multiplier))
           (if enchantment 100 0)
           (if ornament 10 0))
        (enchantment-multiplier enchantment)
@@ -330,8 +330,8 @@
 
 (defun vanilla-armor-description (vanilla-armor)
   (format nil "~A ~A"
-          (-> vanilla-armor armor-material material-name)
-          (-> vanilla-armor armor-piece piece-name)))
+          (-<> vanilla-armor armor-material material-name)
+          (-<> vanilla-armor armor-piece piece-name)))
 
 
 (defun armor-description (armor)
@@ -425,8 +425,8 @@
 
 (defun weapon-value (weapon)
   (with-weapon (weapon)
-    (* (+ (* (-> piece piece-base-value)
-             (-> material material-multiplier))
+    (* (+ (* (-<> piece piece-base-value)
+             (-<> material material-multiplier))
           (if enchantment 100 0)
           (if ornament 10 0))
        (enchantment-multiplier enchantment)
@@ -436,8 +436,8 @@
 (defun vanilla-weapon-description (vanilla-weapon)
   (with-weapon (vanilla-weapon)
     (format nil "~A ~A"
-            (-> material material-name)
-            (-> piece piece-name))))
+            (-<> material material-name)
+            (-<> piece piece-name))))
 
 (defun weapon-description (weapon)
   (let ((vanilla-description (vanilla-weapon-description weapon))
