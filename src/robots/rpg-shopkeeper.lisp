@@ -1,6 +1,8 @@
 (in-package :magitek.robots.rpg-shopkeeper)
 (named-readtables:in-readtable :nutbags-readtable)
 
+; https://twitter.com/rpg_shopkeeper
+
 ;;;; Utils --------------------------------------------------------------------
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun muffenize (str)
