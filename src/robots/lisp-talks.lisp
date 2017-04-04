@@ -1,6 +1,8 @@
 (in-package :magitek.robots.lisp-talks)
 (named-readtables:in-readtable :chancery)
 
+;; https://twitter.com/lisp_talks
+
 (defun ? (arg)
   (if (randomp)
     (format nil "~A " arg)
