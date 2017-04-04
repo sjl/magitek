@@ -22,10 +22,10 @@
 (defparameter *hn-corpus-path* "corpora/hacker-news.txt")
 
 (defun firebase-get (url)
-  (-> url
+  (-<> url
     drakma:http-request
-    (flex:octets-to-string :external-format :utf-8)
-    (jonathan:parse :as :hash-table)))
+    (flex:octets-to-string <> :external-format :utf-8)
+    (jonathan:parse <> :as :hash-table)))
 
 
 (defun hn-top ()
@@ -45,7 +45,9 @@
 (defun hn-text (comment)
   (-> (gethash "text" comment)
     sanitize:clean
-    html-entities:decode-entities))
+    ;; this is gone from quicklisp because god hates me
+    ;; html-entities:decode-entities
+    ))
 
 
 (defun hn-comments (story-id)

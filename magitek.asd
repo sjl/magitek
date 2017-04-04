@@ -15,7 +15,7 @@
                :fare-quasiquote
                :fare-quasiquote-readtable
                :flexi-streams
-               :html-entities
+               ;; :html-entities ; fuck my life
                :iterate
                :jonathan
                :losh
@@ -41,6 +41,7 @@
                              (:file "markov")
                              (:module "robots"
                               :components ((:file "git-commands")
+                                           (:file "lisp-talks")
                                            (:file "hacker-booze")
                                            (:file "frantic-barista")
                                            (:file "rpg-shopkeeper")))

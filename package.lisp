@@ -43,6 +43,15 @@
     :magitek.quickutils)
   (:export :random-string))
 
+(defpackage :magitek.robots.lisp-talks
+  (:use
+    :cl
+    :iterate
+    :losh
+    :chancery
+    :magitek.quickutils)
+  (:export :random-string))
+
 (defpackage :magitek.robots.rpg-shopkeeper
   (:use
     :cl

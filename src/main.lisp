@@ -15,6 +15,11 @@
             #'magitek.robots.git-commands:random-string
             12))
 
+(defparameter *lisp-talks*
+  (make-bot :lisp-talks
+            #'magitek.robots.lisp-talks:random-string
+            12))
+
 (defparameter *rpg-shopkeeper*
   (make-bot :rpg-shopkeeper
             #'magitek.robots.rpg-shopkeeper:random-string 
@@ -60,4 +65,5 @@
   (spinup)
   (run-bot *frantic-barista*)
   (run-bot *git-commands*)
+  (run-bot *lisp-talks*)
   (run-bot *rpg-shopkeeper*))
