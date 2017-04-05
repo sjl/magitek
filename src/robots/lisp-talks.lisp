@@ -203,7 +203,7 @@
 
 (define-string (talk :distribution :weighted)
   (50 talk%)
-  ( 1 ("reflections on" talk%))
+  ( 1 ("reflections on" [talk% cap]))
   ( 1 (talk% "--" !(+ 5 (random 40)) "years later"))
   ( 1 (talk% :. ", Part" !(format nil "~@R" (+ 1 (random 3))))))
 
