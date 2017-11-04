@@ -8,3 +8,4 @@ database.sqlite
 build/magitek
 data
 corpora
+bin
