@@ -23,7 +23,7 @@
 
 (defmacro with-account (account-name &body body)
   (once-only (account-name)
-    `(if-found account (gethash ,account-name *accounts*)
+    `(if-found (account (gethash ,account-name *accounts*))
        (let ((chirp:*oauth-api-key* (getf account :api-key))
              (chirp:*oauth-api-secret* (getf account :api-secret))
              (chirp:*oauth-access-token* (getf account :access-token))

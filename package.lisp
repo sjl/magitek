@@ -37,7 +37,6 @@
 (defpackage :magitek.robots.git-commands
   (:use
     :cl
-    :iterate
     :losh
     :chancery
     :magitek.quickutils)
@@ -46,7 +45,6 @@
 (defpackage :magitek.robots.lisp-talks
   (:use
     :cl
-    :iterate
     :losh
     :chancery
     :magitek.quickutils)
@@ -55,7 +53,6 @@
 (defpackage :magitek.robots.rpg-shopkeeper
   (:use
     :cl
-    :iterate
     :losh
     :chancery
     :magitek.quickutils)
@@ -64,7 +61,6 @@
 (defpackage :magitek.robots.frantic-barista
   (:use
     :cl
-    :iterate
     :losh
     :chancery
     :magitek.quickutils)
