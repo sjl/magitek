@@ -70,14 +70,6 @@
     :magitek.quickutils)
   (:export :random-string))
 
-(defpackage :magitek.robots.hacker-booze
-  (:use
-    :cl
-    :iterate
-    :losh
-    :magitek.quickutils)
-  (:export :random-string))
-
 
 (defpackage :magitek
   (:use

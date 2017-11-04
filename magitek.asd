@@ -10,18 +10,11 @@
 
                :chancery
                :chirp
-               :clss
-               :drakma
                :fare-quasiquote
                :fare-quasiquote-readtable
-               :flexi-streams
-               ;; :html-entities ; fuck my life
                :iterate
-               :jonathan
                :losh
                :named-readtables
-               :plump
-               :sanitize
                :split-sequence
                :sqlite
                :trivia
@@ -42,7 +35,6 @@
                              (:module "robots"
                               :components ((:file "git-commands")
                                            (:file "lisp-talks")
-                                           (:file "hacker-booze")
                                            (:file "frantic-barista")
                                            (:file "rpg-shopkeeper")))
                              (:file "main")))))
