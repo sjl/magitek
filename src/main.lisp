@@ -41,7 +41,7 @@
     (finding (funcall generator) :such-that #'tt-tweetable-p)))
 
 
-(defun run-bot (bot &key (force nil))
+(defun run-bot (bot &key (force nil) (dry nil))
   (with-bot (bot)
     (format t "Running ~S~%" name)
     (when (or force
@@ -52,8 +52,9 @@
           (progn
             (format t "Tweeting as ~S: ~S~%" name tweet)
             (db-insert-tweet name tweet)
-            (tt-tweet name tweet)
-            (sleep 5.0)))))))
+            (unless dry
+              (tt-tweet name tweet)
+              (sleep 5.0))))))))
 
 
 (defun spinup ()

@@ -22,6 +22,11 @@
 
                )
 
+  :defsystem-depends-on (:deploy)
+  :build-operation "deploy-op"
+  :build-pathname "magitek"
+  :entry-point "magitek:main"
+
   :serial t
   :components ((:module "vendor" :serial t
                 :components ((:file "quickutils-package")
