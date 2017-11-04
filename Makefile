@@ -1,4 +1,4 @@
-.PHONY: vendor binary clean
+.PHONY: vendor binary clean deploy update-deps
 
 # Vendor ----------------------------------------------------------------------
 vendor/quickutils.lisp: vendor/make-quickutils.lisp
@@ -26,7 +26,7 @@ update-deps:
 	hg -R /home/sjl/lib/chancery -v pull -u
 
 # Local
-deploy: build/magitek
-	rsync --exclude=bin --exclude=.hg --exclude=database.sqlite  -avz . jam:/home/sjl/magitek
-	ssh jam make -C /home/sjl/magitek update-deps binary
+deploy: binary
+	rsync --exclude=bin --exclude=.hg --exclude=database.sqlite  -avz . jam:/home/sjl/src/magitek
+	ssh jam make -C /home/sjl/src/magitek update-deps binary
 
