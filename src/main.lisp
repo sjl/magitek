@@ -63,6 +63,7 @@
   (tt-load-credentials))
 
 (defun main ()
+  (setf *random-state* (make-random-state t))
   (spinup)
   (run-bot *frantic-barista*)
   (run-bot *git-commands*)
