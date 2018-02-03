@@ -19,6 +19,7 @@
                :sqlite
                :trivia
                :trivia.quasiquote
+               :trivial-ppm
 
                )
 
@@ -37,6 +38,7 @@
                              (:file "database")
                              (:file "twitter")
                              (:file "markov")
+                             (:file "diamond-square")
                              (:module "robots"
                               :components ((:file "git-commands")
                                            (:file "lisp-talks")

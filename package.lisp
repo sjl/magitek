@@ -33,6 +33,15 @@
     :build-markov-generator
     :generate-sentence))
 
+(defpackage :magitek.diamond-square
+  (:use
+    :cl
+    :losh
+    :iterate
+    :magitek.quickutils)
+  (:export
+    :generate-heightmap))
+
 
 (defpackage :magitek.robots.git-commands
   (:use

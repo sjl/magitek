@@ -41,7 +41,7 @@
     (finding (funcall generator) :such-that #'tt-tweetable-p)))
 
 
-(defun run-bot (bot &key (force nil) (dry nil))
+(defun run-bot (bot &key (force nil) (dry t))
   (with-bot (bot)
     (format t "Running ~S~%" name)
     (when (or force
@@ -52,9 +52,11 @@
           (progn
             (format t "Tweeting as ~S: ~S~%" name tweet)
             (db-insert-tweet name tweet)
-            (unless dry
-              (tt-tweet name tweet)
-              (sleep 5.0))))))))
+            (if dry
+              (format t "Skipping actual tweet (dry run).")
+              (progn
+                (tt-tweet name tweet)
+                (sleep 5.0)))))))))
 
 
 (defun spinup ()
@@ -65,7 +67,7 @@
 (defun main ()
   (setf *random-state* (make-random-state t))
   (spinup)
-  (run-bot *frantic-barista*)
-  (run-bot *git-commands*)
-  (run-bot *lisp-talks*)
-  (run-bot *rpg-shopkeeper*))
+  (run-bot *frantic-barista* :dry nil)
+  (run-bot *git-commands* :dry nil)
+  (run-bot *lisp-talks* :dry nil)
+  (run-bot *rpg-shopkeeper* :dry nil))
