@@ -4,8 +4,10 @@
   (sb-ext:run-program "pnmtopng" (list pnm)
                       :search t
                       :output png
+                      :error *standard-output*
                       :if-output-exists :supersede)
   (sb-ext:run-program "mogrify" (list "-resize" "800x800" png)
+                      :error :output
                       :search t))
 
 (defun loom-1 (seed)

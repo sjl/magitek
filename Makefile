@@ -1,4 +1,4 @@
-.PHONY: vendor binary clean deploy update-deps
+.PHONY: vendor binary clean deploy update-deps force-binary
 
 # Vendor ----------------------------------------------------------------------
 vendor/quickutils.lisp: vendor/make-quickutils.lisp
@@ -15,8 +15,12 @@ lisps := $(shell ffind '\.(asd|lisp|ros)$$')
 
 binary: bin/magitek
 
-bin/magitek: $(lisps)
+force-binary:
+	rm bin/magitek
 	sbcl --load "src/build.lisp"
+
+bin/magitek: $(lisps)
+	force-binary
 
 # Deploy ----------------------------------------------------------------------
 
@@ -28,7 +32,7 @@ update-deps:
 	hg -R /home/sjl/lib/flax        -v pull -u
 
 # Local
-deploy: binary
-	rsync --exclude=bin --exclude=.hg --exclude=database.sqlite  -avz . jam:/home/sjl/src/magitek
-	ssh jam make -C /home/sjl/src/magitek update-deps binary
+deploy:
+	rsync --exclude=bin --exclude=.hg --exclude=database.sqlite --exclude='*.fasl' --exclude='*.png' --exclude='*.pnm'  -avz . jam:/home/sjl/src/magitek
+	ssh jam make -C /home/sjl/src/magitek update-deps force-binary
 

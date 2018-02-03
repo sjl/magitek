@@ -2,6 +2,7 @@ syntax: glob
 
 scratch.lisp
 *.png
+*.pnm
 docs/build
 creds.lisp
 database.sqlite
