@@ -43,13 +43,20 @@
     :generate-heightmap))
 
 
+(defpackage :magitek.robots.bit-loom
+  (:use
+    :cl
+    :losh
+    :magitek.quickutils)
+  (:export :random-tweet))
+
 (defpackage :magitek.robots.git-commands
   (:use
     :cl
     :losh
     :chancery
     :magitek.quickutils)
-  (:export :random-string))
+  (:export :random-tweet))
 
 (defpackage :magitek.robots.lisp-talks
   (:use
@@ -57,7 +64,7 @@
     :losh
     :chancery
     :magitek.quickutils)
-  (:export :random-string))
+  (:export :random-tweet))
 
 (defpackage :magitek.robots.rpg-shopkeeper
   (:use
@@ -65,7 +72,7 @@
     :losh
     :chancery
     :magitek.quickutils)
-  (:export :random-string))
+  (:export :random-tweet))
 
 (defpackage :magitek.robots.frantic-barista
   (:use
@@ -73,7 +80,7 @@
     :losh
     :chancery
     :magitek.quickutils)
-  (:export :random-string))
+  (:export :random-tweet))
 
 
 (defpackage :magitek

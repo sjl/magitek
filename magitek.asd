@@ -12,6 +12,7 @@
                :chirp
                :fare-quasiquote
                :fare-quasiquote-readtable
+               :flax
                :iterate
                :losh
                :named-readtables
@@ -42,6 +43,7 @@
                              (:module "robots"
                               :components ((:file "git-commands")
                                            (:file "lisp-talks")
+                                           (:file "bit-loom")
                                            (:file "frantic-barista")
                                            (:file "rpg-shopkeeper")))
                              (:file "main")))))

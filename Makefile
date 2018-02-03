@@ -25,6 +25,7 @@ update-deps:
 	hg -R /home/sjl/lib/cl-losh     -v pull -u
 	hg -R /home/sjl/lib/chancery    -v pull -u
 	hg -R /home/sjl/lib/trivial-ppm -v pull -u
+	hg -R /home/sjl/lib/flax        -v pull -u
 
 # Local
 deploy: binary

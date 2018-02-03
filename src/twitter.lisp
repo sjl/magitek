@@ -47,10 +47,12 @@
   (load "creds.lisp")
   (load-accounts))
 
-(defun tt-tweet (account text)
+(defun tt-tweet (account text media)
   (with-account account
-    (chirp:tweet text)))
+    (if media
+      (chirp:tweet text :file (pathname media))
+      (chirp:tweet text))))
 
 (defun tt-tweetable-p (text)
-  (< 30 (length text) 138))
+  (< 5 (length text) 260))
 
