@@ -23,7 +23,7 @@
          (loom (elt *looms* loom-index)))
     (pr 'running loom)
     (let ((extra (funcall loom seed)))
-      (resize "out.png" 800)
+      (resize "out.png" 1200)
       (values (1+ loom-index) extra))))
 
 (defun random-tweet ()
