@@ -16,7 +16,7 @@ lisps := $(shell ffind '\.(asd|lisp|ros)$$')
 binary: bin/magitek
 
 force-binary:
-	rm bin/magitek
+	rm -f bin/magitek
 	sbcl --load "src/build.lisp"
 
 bin/magitek: $(lisps)
