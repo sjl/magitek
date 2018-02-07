@@ -40,19 +40,19 @@
   (* h 60))
 
 
-(defun generate-tweet (generator)
+(defun generate-tweet (generator args)
   (do-repeat 100
-    (multiple-value-bind (text media) (funcall generator)
+    (multiple-value-bind (text media) (apply generator args)
       (when (tt-tweetable-p text)
         (return (values text media))))))
 
 
-(defun run-bot (bot &key (force nil) (dry t))
+(defun run-bot (bot &key (force nil) (dry t) bot-args)
   (with-bot (bot)
     (format t "Running ~S~%" name)
     (when (or force
               (not (db-tweeted-since-p name (hours-to-minutes hours))))
-      (multiple-value-bind (tweet media) (generate-tweet generator)
+      (multiple-value-bind (tweet media) (generate-tweet generator bot-args)
         (if (null tweet)
           (format t "Could not generate a suitable tweet for ~S~%" name)
           (progn

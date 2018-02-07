@@ -16,20 +16,28 @@
     (flax.looms.002-wobbly-lines:loom seed ticks "out.png" 2000 400)
     (format nil "~R ticks" ticks)))
 
-(defparameter *looms* '(loom-1 loom-2))
+(defun loom-3 (seed)
+  (flax.looms.003-basic-l-systems::loom-anabaena-catenula seed "out.png" 2000 2000)
+  (format nil "variety: anabaena catenula"))
 
-(defun generate-image (seed)
+(defparameter *looms* '(loom-1 loom-2 loom-3))
+
+(defun generate-image (seed &key force-loom)
   (let* ((loom-index (random (length *looms*)))
+         (loom-index (if force-loom
+                       (1- force-loom)
+                       loom-index))
          (loom (elt *looms* loom-index)))
-    (pr 'running loom)
+    (format t "Running ~A~%" loom)
+    (force-output)
     (let ((extra (funcall loom seed)))
       (resize "out.png" 1200)
       (values (1+ loom-index) extra))))
 
-(defun random-tweet ()
+(defun random-tweet (&key force-loom)
   (let ((seed (random (expt 2 32))))
     (multiple-value-bind (loom-number extra-information)
-        (generate-image seed)
+        (generate-image seed :force-loom force-loom)
       (values (string-upcase
                 (format nil "loom ~R, seed ~D~A"
                         loom-number seed
