@@ -20,7 +20,12 @@
   (flax.looms.003-basic-l-systems::loom-anabaena-catenula seed "out.png" 2000 2000)
   (format nil "variety: anabaena catenula"))
 
-(defparameter *looms* '(loom-1 loom-2 loom-3))
+(defun loom-4 (seed)
+  (destructuring-bind (lsystem iterations)
+      (flax.looms.004-turtle-curves::loom seed "out.png" 1000 1000)
+    (format nil "~R iterations of ~A" iterations lsystem)))
+
+(defparameter *looms* '(loom-1 loom-2 loom-3 loom-4))
 
 (defun generate-image (seed &key force-loom)
   (let* ((loom-index (random (length *looms*)))
