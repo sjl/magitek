@@ -21,17 +21,24 @@
   (format nil "variety: anabaena catenula"))
 
 (defun loom-4 (seed)
-  (destructuring-bind (lsystem iterations)
+  (destructuring-bind (lsystem iterations mutagen)
       (flax.looms.004-turtle-curves::loom seed "out.png" 1000 1000)
-    (format nil "~R iterations of ~A" iterations lsystem)))
+    (format nil "~R iterations of ~A, ~A" iterations lsystem
+            (if mutagen
+              (format nil "mutagen ~D" mutagen)
+              "pure"))))
+
+(chancery:define-rule (select-loom :distribution :weighted)
+  (1.0 1)
+  (0.5 2)
+  (0.2 3)
+  (2.0 4))
 
 (defparameter *looms* '(loom-1 loom-2 loom-3 loom-4))
 
 (defun generate-image (seed &key force-loom)
   (let* ((loom-index (random (length *looms*)))
-         (loom-index (if force-loom
-                       (1- force-loom)
-                       loom-index))
+         (loom-index (1- (or force-loom (select-loom))))
          (loom (elt *looms* loom-index)))
     (format t "Running ~A~%" loom)
     (force-output)
