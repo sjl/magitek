@@ -8,21 +8,21 @@
 
 (defun loom-1 (seed)
   (let ((depth (random-range-inclusive 16 19)))
-    (flax.looms.001-triangles:loom seed depth "out.png" 3000 3000)
+    (flax.looms.001-triangles:loom seed depth "out" :png 3000 3000)
     (format nil "depth ~D" depth)))
 
 (defun loom-2 (seed)
   (let ((ticks (* 1000 (random-range-inclusive 3 8))))
-    (flax.looms.002-wobbly-lines:loom seed ticks "out.png" 2000 400)
+    (flax.looms.002-wobbly-lines:loom seed ticks "out" :png 2000 400)
     (format nil "~R ticks" ticks)))
 
 (defun loom-3 (seed)
-  (flax.looms.003-basic-l-systems::loom-anabaena-catenula seed "out.png" 2000 2000)
+  (flax.looms.003-basic-l-systems::loom-anabaena-catenula seed "out" :png 2000 2000)
   (format nil "variety: anabaena catenula"))
 
 (defun loom-4 (seed)
   (destructuring-bind (lsystem iterations mutagen)
-      (flax.looms.004-turtle-curves::loom seed "out.png" 1000 1000)
+      (flax.looms.004-turtle-curves::loom seed "out" :png 1000 1000)
     (format nil "~R iterations of ~A, ~A" iterations lsystem
             (if mutagen
               (format nil "mutagen ~D" mutagen)
