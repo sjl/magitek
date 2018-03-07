@@ -28,13 +28,21 @@
               (format nil "mutagen ~D" mutagen)
               "pure"))))
 
+(defun loom-5 (seed)
+  (let* ((points (* 100 (random-range-inclusive 1 100)))
+         (generator (flax.looms.005-simple-triangulations::loom
+                      seed points "out" :png 1000 1000)))
+    (format nil "~R points, ~A generator" points generator)))
+
+
 (chancery:define-rule (select-loom :distribution :weighted)
   (1.0 1)
   (0.5 2)
   (0.2 3)
-  (2.0 4))
+  (2.0 4)
+  (1.5 5))
 
-(defparameter *looms* '(loom-1 loom-2 loom-3 loom-4))
+(defparameter *looms* '(loom-1 loom-2 loom-3 loom-4 loom-5))
 
 (defun generate-image (seed &key force-loom)
   (let* ((loom-index (random (length *looms*)))
