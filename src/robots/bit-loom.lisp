@@ -29,10 +29,15 @@
               "pure"))))
 
 (defun loom-5 (seed)
-  (let* ((points (* 100 (random-range-inclusive 1 100)))
-         (generator (flax.looms.005-simple-triangulations::loom
-                      seed points "out" :png 1000 1000)))
-    (format nil "~R points, ~A generator" points generator)))
+  (let ((points (* 100 (random-range-inclusive 1 100))))
+    (destructuring-bind (generator ratio)
+        (flax.looms.005-simple-triangulations::loom
+          seed points "out" :png 1000 1000)
+      (format nil "~R points, ~A generator, ~A triangulation"
+              points generator
+              (if (= 1 ratio)
+                "full"
+                (format nil "~R percent" (truncate (* 100 ratio))))))))
 
 
 (chancery:define-rule (select-loom :distribution :weighted)
