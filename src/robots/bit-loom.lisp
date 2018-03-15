@@ -39,19 +39,25 @@
                 "full"
                 (format nil "~R percent" (truncate (* 100 ratio))))))))
 
+(defun loom-6 (seed)
+  (destructuring-bind (points lines)
+      (flax.looms.006-tracing-lines::loom
+        seed "out" :png 1000 1000)
+    (format nil "~R lines of ~R points" lines points)))
+
 
 (chancery:define-rule (select-loom :distribution :weighted)
   (1.0 1)
   (0.5 2)
   (0.2 3)
   (2.0 4)
-  (1.5 5))
+  (1.0 5)
+  (1.0 6))
 
-(defparameter *looms* '(loom-1 loom-2 loom-3 loom-4 loom-5))
+(defparameter *looms* '(loom-1 loom-2 loom-3 loom-4 loom-5 loom-6))
 
 (defun generate-image (seed &key force-loom)
-  (let* ((loom-index (random (length *looms*)))
-         (loom-index (1- (or force-loom (select-loom))))
+  (let* ((loom-index (1- (or force-loom (select-loom))))
          (loom (elt *looms* loom-index)))
     (format t "Running ~A~%" loom)
     (force-output)
