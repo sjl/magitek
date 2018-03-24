@@ -6,44 +6,47 @@
                       :error :output
                       :search t))
 
-(defun loom-1 (seed)
-  (let ((depth (random-range-inclusive 16 19)))
-    (flax.looms.001-triangles:loom seed depth "out" :png 3000 3000)
-    (format nil "depth ~D" depth)))
+(defmacro define-loom ((number loom &optional (width 1200) (height 1200))
+                       loom-results &body body)
+  `(defun ,(symb 'loom- number) (seed)
+     (multiple-value-bind ,loom-results
+         (,loom seed "out" :png ,width ,height)
+       ,@body)))
 
-(defun loom-2 (seed)
-  (let ((ticks (* 1000 (random-range-inclusive 3 8))))
-    (flax.looms.002-wobbly-lines:loom seed ticks "out" :png 2000 400)
-    (format nil "~R ticks" ticks)))
+(define-loom (1 flax.looms.001-triangles:loom 3000 3000)
+    (depth)
+  (format nil "depth ~D" depth))
 
-(defun loom-3 (seed)
-  (flax.looms.003-basic-l-systems::loom-anabaena-catenula seed "out" :png 2000 2000)
+(define-loom (2 flax.looms.002-wobbly-lines:loom 2000 400)
+    (mode ticks)
+  (format nil "~R ticks (~A)" ticks mode))
+
+(define-loom (3 flax.looms.003-basic-l-systems:loom)
+    ()
   (format nil "variety: anabaena catenula"))
 
-(defun loom-4 (seed)
-  (destructuring-bind (lsystem iterations mutagen)
-      (flax.looms.004-turtle-curves::loom seed "out" :png 1000 1000)
-    (format nil "~R iterations of ~A, ~A" iterations lsystem
-            (if mutagen
-              (format nil "mutagen ~D" mutagen)
-              "pure"))))
+(define-loom (4 flax.looms.004-turtle-curves:loom)
+    (lsystem iterations mutagen)
+  (format nil "~R iterations of ~A, ~A" iterations lsystem
+          (if mutagen
+            (format nil "mutagen ~D" mutagen)
+            "pure")))
 
-(defun loom-5 (seed)
-  (let ((points (* 100 (random-range-inclusive 1 100))))
-    (destructuring-bind (generator ratio)
-        (flax.looms.005-simple-triangulations::loom
-          seed points "out" :png 1000 1000)
-      (format nil "~R points, ~A generator, ~A triangulation"
-              points generator
-              (if (= 1 ratio)
-                "full"
-                (format nil "~R percent" (truncate (* 100 ratio))))))))
+(define-loom (5 flax.looms.005-simple-triangulations:loom)
+    (generator points ratio)
+  (format nil "~R points, ~A generator, ~A triangulation"
+          points generator
+          (if (= 1 ratio)
+            "full"
+            (format nil "~R percent" (truncate (* 100 ratio))))))
 
-(defun loom-6 (seed)
-  (destructuring-bind (points lines)
-      (flax.looms.006-tracing-lines::loom
-        seed "out" :png 1000 1000)
-    (format nil "~R lines of ~R points" lines points)))
+(define-loom (6 flax.looms.006-tracing-lines:loom)
+    (points lines)
+  (format nil "~R lines of ~R points" lines points))
+
+(define-loom (7 flax.looms.007-stipple:loom)
+    (shapes)
+  (format nil "stippling of ~R shapes" shapes))
 
 
 (chancery:define-rule (select-loom :distribution :weighted)
@@ -52,9 +55,10 @@
   (0.2 3)
   (2.0 4)
   (1.0 5)
-  (1.0 6))
+  (1.0 6)
+  (1.0 7))
 
-(defparameter *looms* '(loom-1 loom-2 loom-3 loom-4 loom-5 loom-6))
+(defparameter *looms* '(loom-1 loom-2 loom-3 loom-4 loom-5 loom-6 loom-7))
 
 (defun generate-image (seed &key force-loom)
   (let* ((loom-index (1- (or force-loom (select-loom))))

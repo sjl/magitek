@@ -1,1 +1,2 @@
 (1 execute-non-query execute-single)
+(2 define-loom)
