@@ -169,7 +169,7 @@
   ("-" :. letter [noun shellify string-upcase]))
 
 (define-string long-option%
-  !(let ((noun (shellify noun)))
+  !(let ((noun (shellify (noun))))
      $("--" :. !noun :. "=<" :. !noun :. ">"))
   ("--" :. action-verb)
   ("--" :. extremum)
