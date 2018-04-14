@@ -30,6 +30,7 @@ update-deps:
 	hg -R /home/sjl/lib/chancery    -v pull -u
 	hg -R /home/sjl/lib/flax        -v pull -u
 	hg -R /home/sjl/lib/cl-pcg      -v pull -u
+	hg -R /home/sjl/lib/3d-vectors  -v pull -u
 
 # Local
 deploy:
