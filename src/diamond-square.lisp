@@ -103,7 +103,7 @@
     (setf p (color-pixel p))))
 
 (defun dump ()
-  (trivial-ppm:write-to-file
+  (netpbm:write-to-file
     "heightmap.pbm"
     (color (heightmap-to-pixels (generate-heightmap 512)))
     :if-exists :supersede))

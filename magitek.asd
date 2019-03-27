@@ -20,7 +20,7 @@
                :sqlite
                :trivia
                :trivia.quasiquote
-               :trivial-ppm
+               :cl-netpbm
 
                )
 
