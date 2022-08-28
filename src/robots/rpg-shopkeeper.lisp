@@ -19,7 +19,7 @@
 
 
 ;;;; Monsters -----------------------------------------------------------------
-(defclass* monster ()
+(defclass* (monster :conc-name monster-) ()
   (singular multiplier plural adjective))
 
 (defun make-monster (singular multiplier plural adjective)
@@ -70,7 +70,7 @@
 
 
 ;;;; Materials ----------------------------------------------------------------
-(defclass* material ()
+(defclass* (material :conc-name material-) ()
   (kind name multiplier))
 
 (defun make-material (kind name multiplier)
@@ -186,7 +186,7 @@
 
 
 ;;;; Pieces -------------------------------------------------------------------
-(defclass* piece ()
+(defclass* (piece :conc-name piece-) ()
   (name base-value))
 
 (defmethod print-object ((o piece) stream)
@@ -265,7 +265,7 @@
 
 
 ;;;; Armor --------------------------------------------------------------------
-(defclass* armor ()
+(defclass* (armor :conc-name armor-) ()
   (material piece enchantment ornament))
 
 (define-with-macro armor
@@ -322,8 +322,8 @@
 
 (defun armor-value (armor)
   (with-armor (armor)
-    (* (+ (* (-<> piece piece-base-value)
-             (-<> material material-multiplier))
+    (* (+ (* (_ piece piece-base-value)
+             (_ material material-multiplier))
           (if enchantment 100 0)
           (if ornament 10 0))
        (enchantment-multiplier enchantment)
@@ -332,8 +332,8 @@
 
 (defun vanilla-armor-description (vanilla-armor)
   (format nil "~A ~A"
-          (-<> vanilla-armor armor-material material-name)
-          (-<> vanilla-armor armor-piece piece-name)))
+          (_ vanilla-armor armor-material material-name)
+          (_ vanilla-armor armor-piece piece-name)))
 
 
 (defun armor-description (armor)
@@ -351,7 +351,7 @@
 
 
 ; ;;;; Weapons ------------------------------------------------------------------
-(defclass* weapon ()
+(defclass* (weapon :conc-name weapon-) ()
   (material piece enchantment ornament))
 
 (define-with-macro weapon
@@ -427,8 +427,8 @@
 
 (defun weapon-value (weapon)
   (with-weapon (weapon)
-    (* (+ (* (-<> piece piece-base-value)
-             (-<> material material-multiplier))
+    (* (+ (* (_ piece piece-base-value)
+             (_ material material-multiplier))
           (if enchantment 100 0)
           (if ornament 10 0))
        (enchantment-multiplier enchantment)
@@ -438,8 +438,8 @@
 (defun vanilla-weapon-description (vanilla-weapon)
   (with-weapon (vanilla-weapon)
     (format nil "~A ~A"
-            (-<> material material-name)
-            (-<> piece piece-name))))
+            (_ material material-name)
+            (_ piece piece-name))))
 
 (defun weapon-description (weapon)
   (let ((vanilla-description (vanilla-weapon-description weapon))
@@ -477,9 +477,9 @@
 (defun round-to (n sigfigs)
   (let* ((digits (ceiling (log n 10)))
          (div (expt 10 (max 0 (- digits sigfigs)))))
-    (-<> n
-      (round <> div)
-      (* <> div))))
+    (_ n
+      (round _ div)
+      (* _ div))))
 
 (defun sanitize-price (price)
   (let ((price (round-to price 3)))
@@ -490,11 +490,11 @@
       (t price))))
 
 (defun item-value (item)
-  (-<> (etypecase item
+  (_ (etypecase item
          (armor (armor-value item))
          (weapon (weapon-value item)))
-    (sanitize-price <>)
-    (format nil "~:D" <>)))
+    (sanitize-price _)
+    (format nil "~:D" _)))
 
 
 (define-string for-the-low-price

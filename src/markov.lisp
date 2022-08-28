@@ -16,8 +16,8 @@
 (defun markov-insert-pair (markov prefix suffix)
   (vector-push-extend
     suffix
-    (ensure-gethash prefix (markov-database markov)
-                    (make-array 1 :fill-pointer 0 :adjustable t))))
+    (alexandria:ensure-gethash prefix (markov-database markov)
+      (make-array 1 :fill-pointer 0 :adjustable t))))
 
 (defun markov-insert-beginning (markov prefix)
   (vector-push-extend prefix (markov-beginnings markov)))
@@ -92,6 +92,22 @@
 (defun suffix (n-gram)
   (car (last n-gram)))
 
+
+(defun n-grams (n sequence)
+    "Find all `n`-grams of the sequence `sequence`."
+    ;;; From quickutil
+    (assert (and (plusp n)
+                 (<= n (length sequence))))
+
+    (etypecase sequence
+      ;; Lists
+      (list (loop :repeat (1+ (- (length sequence) n))
+                  :for seq :on sequence
+                  :collect (take n seq)))
+
+      ;; General sequences
+      (sequence (loop :for i :to (- (length sequence) n)
+                      :collect (subseq sequence i (+ i n))))))
 
 (defun chunk-sentence (size sentence)
   (mapcar (juxt #'prefix #'suffix)

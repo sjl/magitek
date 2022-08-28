@@ -1,38 +1,12 @@
-.PHONY: vendor binary clean deploy update-deps force-binary
+.PHONY: deploy clean
 
-# Vendor ----------------------------------------------------------------------
-vendor/quickutils.lisp: vendor/make-quickutils.lisp
-	cd vendor && sbcl --noinform --load make-quickutils.lisp  --eval '(quit)'
+lisps := $(shell ffind '\.(asd|lisp)$$')
 
-vendor: vendor/quickutils.lisp
+bin/magitek:
+	sbcl --disable-debugger --load 'src/build.lisp'
 
-# Clean -----------------------------------------------------------------------
+deploy: bin/magitek
+	rsync -avz bin/ jam:magitek/bin
+
 clean:
-	rm -rf bin
-
-# Build -----------------------------------------------------------------------
-lisps := $(shell ffind '\.(asd|lisp|ros)$$')
-
-binary: bin/magitek
-
-force-binary:
-	rm -f bin/magitek
-	sbcl --load "src/build.lisp"
-
-bin/magitek: $(lisps)
-	force-binary
-
-# Deploy ----------------------------------------------------------------------
-
-# Server
-update-deps:
-	hg -R /home/sjl/lib/cl-losh     -v pull -u
-	hg -R /home/sjl/lib/chancery    -v pull -u
-	hg -R /home/sjl/lib/flax        -v pull -u
-	hg -R /home/sjl/lib/cl-pcg      -v pull -u
-
-# Local
-deploy:
-	rsync --exclude=bin --exclude=.hg --exclude=database.sqlite --exclude='*.fasl' --exclude='*.png' --exclude='*.pnm'  -avz . jam:/home/sjl/src/magitek
-	ssh jam make -C /home/sjl/src/magitek update-deps force-binary
-
+	rm -rf bin/

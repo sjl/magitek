@@ -34,12 +34,13 @@
 (defun db-tweeted-since-p (account minutes-ago)
   (check-type minutes-ago (integer 1))
   (check-db)
-  (ensure-boolean
-    (execute-single *database*
-      "SELECT content FROM tweets
+  (if (execute-single *database*
+        "SELECT content FROM tweets
         WHERE account = ?
           AND timestamp > datetime('now', ?)
         LIMIT 1
       "
-      (aesthetic-string account)
-      (format nil "-~D minutes" minutes-ago))))
+        (aesthetic-string account)
+        (format nil "-~D minutes" minutes-ago))
+      t
+      nil))

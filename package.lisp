@@ -2,8 +2,7 @@
   (:use
     :cl
     :iterate
-    :losh
-    :magitek.quickutils)
+    :losh)
   (:export
     :tt-load-credentials
     :tt-authorize
@@ -14,8 +13,7 @@
   (:use
     :cl
     :losh
-    :sqlite
-    :magitek.quickutils)
+    :sqlite)
   (:export
     :db-connect
     :db-initialize
@@ -27,8 +25,7 @@
   (:use
     :cl
     :losh
-    :iterate
-    :magitek.quickutils)
+    :iterate)
   (:export
     :build-markov-generator
     :generate-sentence))
@@ -37,8 +34,7 @@
   (:use
     :cl
     :losh
-    :iterate
-    :magitek.quickutils)
+    :iterate)
   (:export
     :generate-heightmap))
 
@@ -46,40 +42,35 @@
 (defpackage :magitek.robots.bit-loom
   (:use
     :cl
-    :losh
-    :magitek.quickutils)
+    :losh)
   (:export :random-tweet))
 
 (defpackage :magitek.robots.git-commands
   (:use
     :cl
     :losh
-    :chancery
-    :magitek.quickutils)
+    :chancery)
   (:export :random-tweet))
 
 (defpackage :magitek.robots.lisp-talks
   (:use
     :cl
     :losh
-    :chancery
-    :magitek.quickutils)
+    :chancery)
   (:export :random-tweet))
 
 (defpackage :magitek.robots.rpg-shopkeeper
   (:use
     :cl
     :losh
-    :chancery
-    :magitek.quickutils)
+    :chancery)
   (:export :random-tweet))
 
 (defpackage :magitek.robots.frantic-barista
   (:use
     :cl
     :losh
-    :chancery
-    :magitek.quickutils)
+    :chancery)
   (:export :random-tweet))
 
 
@@ -89,7 +80,6 @@
     :iterate
     :losh
     :magitek.twitter
-    :magitek.database
-    :magitek.quickutils)
+    :magitek.database)
   (:export
     :main))

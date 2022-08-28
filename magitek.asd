@@ -8,6 +8,7 @@
 
   :depends-on (
 
+               :alexandria
                :chancery
                :chirp
                :fare-quasiquote
@@ -30,10 +31,7 @@
   :entry-point "magitek:main"
 
   :serial t
-  :components ((:module "vendor" :serial t
-                :components ((:file "quickutils-package")
-                             (:file "quickutils")))
-               (:file "package")
+  :components ((:file "package")
                (:module "src" :serial t
                 :components ((:file "readtables")
                              (:file "database")
